@@ -9,7 +9,14 @@ class Banner:
 
     @staticmethod
     def load(path='./'):
-        # 如果path是一个文件，则读取文件中的内容，否则扫描path目录下的banner作为扩展名的文件，读取第一个.banner文件
+        """
+        加载banner文件
+        Args:
+            path: 如果是一个文件，则读取文件中的内容，否则扫描path目录下的banner作为扩展名的文件，读取第一个.banner文件
+
+        Returns:
+            加载的banner文件内容或者错误信息
+        """
         if os.path.exists(path):
             if os.path.isfile(path):  # 检查path是否为文件
                 with open(path, 'r') as file:
@@ -24,8 +31,5 @@ class Banner:
         else:
             return "The specified path does not exist."
 
-    # 示例用法
-    # content = load('/path/to/your/file_or_directory')
-    # print(content)
     def show(self):
         print(self.content)

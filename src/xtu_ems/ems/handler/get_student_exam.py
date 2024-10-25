@@ -23,7 +23,7 @@ class StudentExamGetter(EMSPoster[list[ExamInfo]]):
         tds = row.find_all('td')
         time = tds[5].text.strip().split('~')
         if len(time) == 2:
-            start_time, end_time = tds[5].text.strip().split('~')
+            start_time, end_time = time
         else:
             start_time, end_time = '', ''
         return ExamInfo(name=tds[2].text.strip(),
