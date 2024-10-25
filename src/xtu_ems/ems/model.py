@@ -119,6 +119,14 @@ class Score(BaseModel):
 
 class ScoreBoard(BaseModel):
     """成绩信息"""
+    student_id: str = ""
+    """学号"""
+    name: str = ""
+    """姓名"""
+    college: str = ""
+    """学院"""
+    major: str = ""
+    """专业"""
 
     scores: list[Score] = []
     """成绩列表"""
@@ -141,13 +149,30 @@ class ScoreBoard(BaseModel):
     """CET6 成绩"""
 
 
+class RankInfo(BaseModel):
+    """排名信息"""
+
+    average_score: str = ""
+    """平均分"""
+    gpa: str = ""
+    """成绩"""
+    class_rank: int = -1
+    """班级排名"""
+    major_rank: int = -1
+    """专业排名"""
+    terms: list[str] = ""
+    """学期"""
+
+
 class ExamInfo(BaseModel):
     """考试信息"""
 
     name: str = ""
     """考试名称"""
-    time: str = None
-    """考试时间"""
+    start_time: str = None
+    """开始时间"""
+    end_time: str = None
+    """结束时间"""
     location: str = None
     """考试地点"""
     type: str = '考试'

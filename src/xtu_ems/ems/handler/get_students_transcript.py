@@ -1,11 +1,13 @@
+from functools import cache
 from io import BytesIO
 
+from bs4 import BeautifulSoup
 from pdfplumber import PDF
 
 from xtu_ems.ems.config import XTUEMSConfig, RequestConfig
 from xtu_ems.ems.ems import QZEducationalManageSystem
-from xtu_ems.ems.handler import Handler, _R
-from xtu_ems.ems.model import ScoreBoard, Score
+from xtu_ems.ems.handler import Handler, _R, EMSPoster
+from xtu_ems.ems.model import ScoreBoard, Score, RankInfo
 from xtu_ems.ems.session import Session
 
 _data = {
@@ -15,6 +17,12 @@ _data = {
     "sjcj": "2",
     "bblx": "all"
 }
+
+
+def pre_proc(res: str):
+    if not isinstance(res, str):
+        return res
+    return res.replace('\n', '').replace('\r', '').replace(' ', '').replace('\t', '')
 
 
 class StudentTranscriptGetter(Handler[ScoreBoard]):
@@ -40,26 +48,42 @@ class StudentTranscriptGetter(Handler[ScoreBoard]):
         return XTUEMSConfig.XTU_EMS_STUDENT_TRANSCRIPT_URL
 
     def _extra_info(self, pdf):
-        table = pdf.pages[0].extract_table()
+        page = pdf.pages[0]
+        directory = page.extract_text_lines()[1]['text'].split(' ')
         scoreboard = ScoreBoard()
+        for i, piece in enumerate(directory):
+            k, v = [x.strip() for x in piece.split('：', 1)]
+            match k:
+                case '院系':
+                    scoreboard.college = v
+                case '专业':
+                    scoreboard.major = v
+                case '姓名':
+                    scoreboard.name = v
+                case '学号':
+                    scoreboard.student_id = v
+
+        table = page.extract_table()
+
         for row in table:
+
             if not isinstance(row[0], str) or row[0] == "课程名称":
                 continue
             if not row[1]:
                 self._parse_score(scoreboard, row[0])
                 continue
-            s = Score(name=row[0].strip(),
-                      type=row[1].strip(),
-                      credit=(row[2].strip()),
-                      score=row[3].strip(),
-                      term=row[4].strip())
+            s = Score(name=pre_proc(row[0]),
+                      type=row[1],
+                      credit=pre_proc(row[2]),
+                      score=pre_proc(row[3]),
+                      term=int(pre_proc(row[4])))
             scoreboard.scores.append(s)
             if row[5]:
-                s = Score(name=row[5].strip(),
-                          type=row[6].strip(),
-                          credit=row[7].strip(),
-                          score=row[8].strip(),
-                          term=row[9].strip())
+                s = Score(name=pre_proc(row[5]),
+                          type=row[6],
+                          credit=pre_proc(row[7]),
+                          score=pre_proc(row[8]),
+                          term=int(pre_proc(row[9])))
                 scoreboard.scores.append(s)
         return scoreboard
 
@@ -110,3 +134,70 @@ class StudentTranscriptGetter(Handler[ScoreBoard]):
                     scoreboard.cet4 = v
                 case 'CET6':
                     scoreboard.cet6 = v
+
+
+@cache
+def get_all_terms(end_term, start_term=1998) -> list[str]:
+    terms = []
+    while True:
+        term = f"{start_term}-{start_term + 1}-1"
+        terms.append(term)
+        if term == end_term:
+            break
+        term = f"{start_term}-{start_term + 1}-2"
+        terms.append(term)
+        if term == end_term:
+            break
+        start_term += 1
+    return terms
+
+
+class StudentRankGetter(EMSPoster[RankInfo]):
+    def __init__(self, terms=None):
+        """
+        获取学生排名
+
+        Args:
+            terms: 学期列表，默认为获取所有学期
+        """
+        super().__init__()
+        self._terms: list[str] = terms
+
+    @property
+    def terms(self):
+        if self._terms is None:
+            return get_all_terms(XTUEMSConfig.get_current_term())
+        return self._terms
+
+    def _data(self):
+        return {
+            'kksj': self.terms,
+            'kclb': [1, 7],
+            'zsb': 0
+        }
+
+    def url(self):
+        return 'https://jwxt.xtu.edu.cn/jsxsd/kscj/cjjd_list'
+
+    def _extra_info(self, soup: BeautifulSoup):
+        trs = soup.find_all('tr')
+        if len(trs) < 3:
+            return []
+        tr = trs[2]
+        return self._extra_rank_info(tr)
+
+    def _extra_rank_info(self, tr: BeautifulSoup):
+        tds = tr.find_all('td')
+        d = {
+            'gpa': tds[0].text.strip(),
+            'avg_score': tds[1].text.strip(),
+            'class_rank': tds[2].text.strip(),
+            'school_rank': tds[3].text.strip(),
+        }
+        return RankInfo(
+            average_score=d['avg_score'],
+            gpa=d['gpa'],
+            class_rank=int(d['class_rank']),
+            major_rank=int(d['school_rank']),
+            terms=self._terms or ['*']
+        )

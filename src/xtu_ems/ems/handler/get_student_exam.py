@@ -21,9 +21,15 @@ class StudentExamGetter(EMSPoster[list[ExamInfo]]):
     def _extra_exam_info(self, row: BeautifulSoup) -> ExamInfo:
         """从表格的某一行中提取学生的考试信息"""
         tds = row.find_all('td')
+        time = tds[5].text.strip().split('~')
+        if len(time) == 2:
+            start_time, end_time = tds[5].text.strip().split('~')
+        else:
+            start_time, end_time = '', ''
         return ExamInfo(name=tds[2].text.strip(),
                         type=tds[3].text.strip(),
-                        time=tds[5].text.strip(),
+                        start_time=start_time,
+                        end_time=end_time,
                         location=tds[6].text.strip())
 
     def url(self):
