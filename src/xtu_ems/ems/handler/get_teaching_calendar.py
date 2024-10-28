@@ -23,4 +23,4 @@ class TeachingCalendarGetter(EMSGetter[TeachingCalendar]):
                 break
         start_day = int(table.find_all('td')[1].text)
         start = datetime(year=start_year, month=start_month, day=start_day)
-        return TeachingCalendar(start=start, term_id=term_id.text)
+        return TeachingCalendar(start=start.date().__str__(), term_id=term_id.text)

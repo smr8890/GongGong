@@ -191,7 +191,7 @@ class ClassroomStatus(BaseModel):
 class TeachingCalendar(BaseModel):
     """教学日历"""
 
-    start: datetime = None
+    start: str = None
     """开始时间"""
     term_id: str = ""
     """学期"""
