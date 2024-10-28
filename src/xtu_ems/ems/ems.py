@@ -21,6 +21,22 @@ class EducationalManageSystem(ABC):
         pass
 
 
+class InvalidAccountException(Exception):
+    """无效账户异常"""
+
+    def __init__(self, message="账号名或者密码错误"):
+        self.message = message
+        super().__init__(self.message)
+
+
+class InvalidCaptchaException(Exception):
+    """无效验证码异常"""
+
+    def __init__(self, message="验证码错误"):
+        self.message = message
+        super().__init__(self.message)
+
+
 class QZEducationalManageSystem(EducationalManageSystem):
     """
     强智教务系统
@@ -56,51 +72,63 @@ class QZEducationalManageSystem(EducationalManageSystem):
             or account.password is None):
             raise Exception("用户名或密码为空")
 
-    def login(self, account: AuthenticationAccount, retry_time=2) -> Session:
+    def login(self, account: AuthenticationAccount, retry_time=3) -> Session:
         """
         登陆教务系统
         Args:
             account: 账户信息
-            retry_time: 重试次数
+            retry_time: 重试次数，如果账号密码错误会直接抛出异常，不会重试
 
         Returns:
             登陆后的session
 
         """
         self.pre_check(account)
-
+        err = None
         if retry_time <= 0:
             raise Exception("登陆失败")
         for i in range(retry_time):
             try:
                 return self._login(account)
-            except Exception as e:
-                logging.debug('登陆失败，正在重试{i}/{retry_time}次')
+            except InvalidAccountException as e:
+                err = e
+                break
+            except InvalidCaptchaException as e:
+                err = e
                 continue
-        raise Exception("登陆失败")
+            finally:
+                logging.error(err)
+                logging.debug(f'登陆失败，正在重试{i}/{retry_time}次')
+        raise err
 
-    async def async_login(self, account: AuthenticationAccount, retry_time=2) -> Session:
+    async def async_login(self, account: AuthenticationAccount, retry_time=3) -> Session:
         """
         登陆教务系统
         Args:
             account: 账户信息
-            retry_time: 重试次数
+            retry_time: 重试次数，如果账号密码错误会直接抛出异常，不会重试
 
         Returns:
             登陆后的session
 
         """
+        err = None
         self.pre_check(account)
         if retry_time <= 0:
             raise Exception("登陆失败")
         for i in range(retry_time):
             try:
                 return await self._async_login(account)
-            except Exception as e:
-                logging.error(e)
-                logging.debug('登陆失败，正在重试{i}/{retry_time}次')
+            except InvalidAccountException as e:
+                err = e
+                break
+            except InvalidCaptchaException as e:
+                err = e
                 continue
-        raise Exception("登陆失败")
+            finally:
+                logging.error(err)
+                logging.debug(f'登陆失败，正在重试{i}/{retry_time}次')
+        raise err
 
     async def _async_login(self, account: AuthenticationAccount) -> Session:
         from aiohttp import ClientSession
@@ -125,6 +153,11 @@ class QZEducationalManageSystem(EducationalManageSystem):
                                         allow_redirects=False,
                                         timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT) as resp:
                 if resp.status != 302:
+                    content = await resp.text()
+                    if "用户名或密码错误,请联系本院教务老师!" in content:
+                        raise InvalidAccountException()
+                    if "验证码错误!!" in content:
+                        raise InvalidCaptchaException()
                     raise Exception("登陆失败")
         return session
 
@@ -150,6 +183,11 @@ class QZEducationalManageSystem(EducationalManageSystem):
                                     allow_redirects=False,
                                     timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
             if resp.status_code != 302:
+                content = resp.text
+                if "用户名或密码错误,请联系本院教务老师!" in content:
+                    raise InvalidAccountException()
+                if "验证码错误!!" in content:
+                    raise InvalidCaptchaException()
                 raise Exception("登陆失败")
         return session
 
