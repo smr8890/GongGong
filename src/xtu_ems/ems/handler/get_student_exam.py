@@ -24,6 +24,8 @@ class StudentExamGetter(EMSPoster[list[ExamInfo]]):
         time = tds[5].text.strip().split('~')
         if len(time) == 2:
             start_time, end_time = time
+            data = start_time.split(' ')[0]
+            end_time = f'{data} {end_time}'
         else:
             start_time, end_time = '', ''
         return ExamInfo(name=tds[2].text.strip(),
