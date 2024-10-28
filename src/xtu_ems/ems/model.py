@@ -1,5 +1,5 @@
 """校务系统信息"""
-from datetime import datetime
+from datetime import datetime, date as ddate
 from typing import Tuple, Literal, TypeVar, Generic
 
 from pydantic import BaseModel
@@ -169,14 +169,21 @@ class ExamInfo(BaseModel):
 
     name: str = ""
     """考试名称"""
-    start_time: str = None
+    start_time: datetime | str = ''
     """开始时间"""
-    end_time: str = None
+    end_time: datetime | str = ''
     """结束时间"""
-    location: str = None
+    location: str = ''
     """考试地点"""
     type: str = '考试'
     """考核方式"""
+
+
+class ExamInfoList(BaseModel):
+    """考试信息列表"""
+
+    exams: list[ExamInfo] = []
+    """考试信息"""
 
 
 class ClassroomStatus(BaseModel):
@@ -188,10 +195,19 @@ class ClassroomStatus(BaseModel):
     """教室状态"""
 
 
+class ClassroomBoard(BaseModel):
+    """教室信息"""
+
+    classrooms: list[ClassroomStatus] = []
+    """教室信息"""
+    date: ddate = datetime.now().date()
+    """日期"""
+
+
 class TeachingCalendar(BaseModel):
     """教学日历"""
 
-    start: str = None
+    start: ddate = None
     """开始时间"""
     term_id: str = ""
     """学期"""

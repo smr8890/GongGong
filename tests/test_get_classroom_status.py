@@ -1,4 +1,3 @@
-import json
 import os
 from unittest import TestCase
 
@@ -19,7 +18,7 @@ class TestTodayClassroomStatusGetter(TestCase):
         session = ems.login(account)
         handler = TodayClassroomStatusGetter()
         resp = handler.handler(session)
-        print(json.dumps(resp, indent=4, ensure_ascii=False, default=str))
+        print(resp.model_dump_json(indent=4))
         self.assertIsNotNone(resp)
 
     def test_async_handler(self):
@@ -33,7 +32,7 @@ class TestTodayClassroomStatusGetter(TestCase):
         handler = TomorrowClassroomStatusGetter()
         import asyncio
         resp = asyncio.run(handler.async_handler(session))
-        print(json.dumps(resp, indent=4, ensure_ascii=False, default=str))
+        print(resp.model_dump_json(indent=4))
         self.assertIsNotNone(resp)
 
 
@@ -48,7 +47,7 @@ class TestTomorrowClassroomStatusGetter(TestCase):
         session = ems.login(account)
         handler = TomorrowClassroomStatusGetter()
         resp = handler.handler(session)
-        print(json.dumps(resp, indent=4, ensure_ascii=False, default=str))
+        print(resp.model_dump_json(indent=4))
         self.assertIsNotNone(resp)
 
     def test_async_handler(self):
@@ -62,5 +61,5 @@ class TestTomorrowClassroomStatusGetter(TestCase):
         handler = TomorrowClassroomStatusGetter()
         import asyncio
         resp = asyncio.run(handler.async_handler(session))
-        print(json.dumps(resp, indent=4, ensure_ascii=False, default=str))
+        print(resp.model_dump_json(indent=4))
         self.assertIsNotNone(resp)

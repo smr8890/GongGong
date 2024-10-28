@@ -1,11 +1,13 @@
+from datetime import datetime, timedelta
+
 from bs4 import BeautifulSoup
 
 from xtu_ems.ems.config import XTUEMSConfig
 from xtu_ems.ems.handler import EMSPoster
-from xtu_ems.ems.model import ClassroomStatus
+from xtu_ems.ems.model import ClassroomStatus, ClassroomBoard
 
 
-class TodayClassroomStatusGetter(EMSPoster[list[ClassroomStatus]]):
+class TodayClassroomStatusGetter(EMSPoster[ClassroomBoard]):
     """查询教室状态"""
 
     def _data(self):
@@ -14,7 +16,7 @@ class TodayClassroomStatusGetter(EMSPoster[list[ClassroomStatus]]):
     def _extra_info(self, soup: BeautifulSoup):
         classroom = soup.find(id="dataList").find_all('tr')[2:]
         classroom = [self._extra_classroom_info(row) for row in classroom]
-        return classroom
+        return ClassroomBoard(classrooms=classroom)
 
     def _extra_classroom_info(self, row: BeautifulSoup) -> ClassroomStatus:
         """从表格的某一行中提取教室的信息"""
@@ -31,3 +33,9 @@ class TomorrowClassroomStatusGetter(TodayClassroomStatusGetter):
 
     def _data(self):
         return {'xzlx': "2"}
+
+    def _extra_info(self, soup: BeautifulSoup):
+        classroom = soup.find(id="dataList").find_all('tr')[2:]
+        classroom = [self._extra_classroom_info(row) for row in classroom]
+        return ClassroomBoard(classrooms=classroom,
+                              date=datetime.now().date() + timedelta(days=1))
