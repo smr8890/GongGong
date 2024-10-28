@@ -5,7 +5,6 @@ from abc import ABC, abstractmethod
 
 import requests
 
-from test_ems import username
 from xtu_ems.ems.account import AuthenticationAccount
 from xtu_ems.ems.config import XTUEMSConfig, RequestConfig
 from xtu_ems.ems.session import Session
@@ -143,7 +142,7 @@ class QZEducationalManageSystem(EducationalManageSystem):
             text = await resp.text()
             signature = json.loads(text).get("data")
             encoded = self._signature(account.username, account.password, signature)
-            data = self._data(username=username,
+            data = self._data(username=account.username,
                               password=account.password,
                               encode=encoded,
                               random_code=captcha)
@@ -172,7 +171,7 @@ class QZEducationalManageSystem(EducationalManageSystem):
                                     timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
             signature = json.loads(resp.content).get("data")
             encoded = self._signature(account.username, account.password, signature)
-            data = self._data(username=username,
+            data = self._data(username=account.username,
                               password=account.password,
                               encode=encoded,
                               random_code=captcha)
