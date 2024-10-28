@@ -5,6 +5,7 @@ from abc import ABC, abstractmethod
 
 import requests
 
+from test_ems import username
 from xtu_ems.ems.account import AuthenticationAccount
 from xtu_ems.ems.config import XTUEMSConfig, RequestConfig
 from xtu_ems.ems.session import Session
@@ -26,9 +27,34 @@ class QZEducationalManageSystem(EducationalManageSystem):
     """
     SESSION_NAME = "JSESSIONID"
 
+    _HEADER = {'Content-Type': 'application/x-www-form-urlencoded'}
+
+    def _data(self, username: str, password: str, encode: str, random_code: str):
+        return {
+            "USERNAME": username,
+            "PASSWORD": password,
+            "encoded": encode,
+            "RANDOMCODE": random_code
+        }
+
     def __init__(self) -> None:
         super().__init__()
         self.captcha = ImageDetector()
+
+    def pre_check(self, account: AuthenticationAccount):
+        """
+        检查账户是否合法
+        Args:
+            account: 账户信息
+
+        Returns:
+            检查结果
+
+        """
+        if (account.username is None
+            or account.username.strip() == ''
+            or account.password is None):
+            raise Exception("用户名或密码为空")
 
     def login(self, account: AuthenticationAccount, retry_time=2) -> Session:
         """
@@ -41,11 +67,7 @@ class QZEducationalManageSystem(EducationalManageSystem):
             登陆后的session
 
         """
-        if (account.username is None
-            or account.username.strip() == ''
-            or account.password is None
-            or account.password.strip() == ''):
-            raise Exception("用户名或密码为空")
+        self.pre_check(account)
 
         if retry_time <= 0:
             raise Exception("登陆失败")
@@ -57,24 +79,76 @@ class QZEducationalManageSystem(EducationalManageSystem):
                 continue
         raise Exception("登陆失败")
 
+    async def async_login(self, account: AuthenticationAccount, retry_time=2) -> Session:
+        """
+        登陆教务系统
+        Args:
+            account: 账户信息
+            retry_time: 重试次数
+
+        Returns:
+            登陆后的session
+
+        """
+        self.pre_check(account)
+        if retry_time <= 0:
+            raise Exception("登陆失败")
+        for i in range(retry_time):
+            try:
+                return await self._async_login(account)
+            except Exception as e:
+                logging.error(e)
+                logging.debug('登陆失败，正在重试{i}/{retry_time}次')
+                continue
+        raise Exception("登陆失败")
+
+    async def _async_login(self, account: AuthenticationAccount) -> Session:
+        from aiohttp import ClientSession
+        async with ClientSession() as ems_session:
+            resp = await ems_session.get(url=XTUEMSConfig.XTU_EMS_CAPTCHA_URL,
+                                         timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
+            session_id = resp.cookies.get(QZEducationalManageSystem.SESSION_NAME).value
+            session = Session(session_id=session_id)
+            captcha = self.captcha.verify(await resp.read())
+            resp = await ems_session.post(url=XTUEMSConfig.XTU_EMS_SIG_URL,
+                                          timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
+            text = await resp.text()
+            signature = json.loads(text).get("data")
+            encoded = self._signature(account.username, account.password, signature)
+            data = self._data(username=username,
+                              password=account.password,
+                              encode=encoded,
+                              random_code=captcha)
+            async with ems_session.post(url=XTUEMSConfig.XTU_EMS_LOGIN_URL,
+                                        data=data,
+                                        headers=QZEducationalManageSystem._HEADER,
+                                        allow_redirects=False,
+                                        timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT) as resp:
+                if resp.status != 302:
+                    raise Exception("登陆失败")
+        return session
+
     def _login(self, account: AuthenticationAccount) -> Session:
         with requests.session() as ems_session:
-            resp = ems_session.get(XTUEMSConfig.XTU_EMS_CAPTCHA_URL, timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
+            resp = ems_session.get(url=XTUEMSConfig.XTU_EMS_CAPTCHA_URL,
+                                   timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
             session_id = resp.cookies.get(QZEducationalManageSystem.SESSION_NAME)
             session = Session(session_id=session_id)
             captcha = self.captcha.verify(resp.content)
-            resp = ems_session.post(XTUEMSConfig.XTU_EMS_SIG_URL, timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
+            resp = ems_session.post(url=XTUEMSConfig.XTU_EMS_SIG_URL,
+                                    timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
             signature = json.loads(resp.content).get("data")
             encoded = self._signature(account.username, account.password, signature)
-            headers = {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            }
-            resp = ems_session.post(XTUEMSConfig.XTU_EMS_LOGIN_URL, data={
-                "USERNAME": account.username,
-                "PASSWORD": account.password,
-                "encoded": encoded,
-                "RANDOMCODE": captcha,
-            }, headers=headers, allow_redirects=False, timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
+            data = self._data(username=username,
+                              password=account.password,
+                              encode=encoded,
+                              random_code=captcha)
+
+            resp = ems_session.post(url=XTUEMSConfig.XTU_EMS_LOGIN_URL,
+                                    data=data,
+                                    headers=QZEducationalManageSystem._HEADER,
+                                    allow_redirects=False,
+                                    timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
             if resp.status_code != 302:
                 raise Exception("登陆失败")
         return session
