@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import date
 
 from bs4 import BeautifulSoup
 
@@ -21,6 +21,9 @@ class TeachingCalendarGetter(EMSGetter[TeachingCalendar]):
                 sec_month = td.text.replace('月', '')
                 start_month = int(sec_month) - 1
                 break
+        weeks = len(table.find_all('tr')) - 2
         start_day = int(table.find_all('td')[1].text)
-        start = datetime(year=start_year, month=start_month, day=start_day)
-        return TeachingCalendar(start=start.date(), term_id=term_id.text)
+        start: date = date(year=start_year, month=start_month, day=start_day)
+        return TeachingCalendar(start=start,
+                                weeks=weeks,
+                                term_id=term_id.text)

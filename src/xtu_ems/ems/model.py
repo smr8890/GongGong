@@ -209,5 +209,7 @@ class TeachingCalendar(BaseModel):
 
     start: ddate = None
     """开始时间"""
+    weeks: int = None
+    """本学期周数"""
     term_id: str = ""
     """学期"""
