@@ -1,6 +1,6 @@
 from unittest import TestCase
 
-from glob import session
+from common_data import session
 
 
 class TestTeachingCalendarGetter(TestCase):

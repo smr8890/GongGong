@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.async_case import IsolatedAsyncioTestCase
 
-from glob import session
+from common_data import session
 
 
 class TestStudentInfoHandler(TestCase):

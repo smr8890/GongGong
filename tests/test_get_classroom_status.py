@@ -1,6 +1,6 @@
 from unittest import TestCase, IsolatedAsyncioTestCase
 
-from glob import session
+from common_data import session
 from xtu_ems.ems.handler.get_classroom_status import TodayClassroomStatusGetter, TomorrowClassroomStatusGetter
 
 

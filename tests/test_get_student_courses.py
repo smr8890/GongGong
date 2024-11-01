@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.async_case import IsolatedAsyncioTestCase
 
-from glob import session, username
+from common_data import session, username
 from xtu_ems.ems.config import RequestConfig
 from xtu_ems.ems.handler.get_student_courses import StudentCourseGetter
 from xtu_ems.ems.model import InformationPackage

@@ -1,7 +1,7 @@
 from unittest import TestCase
 from unittest.async_case import IsolatedAsyncioTestCase
 
-from glob import account
+from common_data import account
 from xtu_ems.ems.account import AuthenticationAccount
 from xtu_ems.ems.ems import QZEducationalManageSystem
 

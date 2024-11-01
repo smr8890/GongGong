@@ -1,6 +1,6 @@
 from unittest import TestCase, IsolatedAsyncioTestCase
 
-from glob import session
+from common_data import session
 from xtu_ems.ems.handler.valid_session import SessionValidator
 from xtu_ems.ems.session import Session
 
