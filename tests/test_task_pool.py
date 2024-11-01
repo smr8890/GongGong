@@ -1,25 +1,15 @@
-import os
 from unittest import TestCase
-
-from xtu_ems.ems.account import AuthenticationAccount
-from xtu_ems.ems.ems import QZEducationalManageSystem
-from xtu_ems.ems.handler.get_student_exam import StudentExamGetter
-
-username = os.getenv("XTU_USERNAME")
-password = os.getenv("XTU_PASSWORD")
+from unittest.mock import AsyncMock
 
 
 class TestAsyncTaskPool(TestCase):
     def test_run(self):
+        """测试异步任务池"""
+        total_task = 99
+        total_worker = 7
         from plat.task_pool import AsyncTaskPool
-        pool = AsyncTaskPool(max_workers=30)
-        account = AuthenticationAccount(username=username,
-                                        password=password)
-
-        ems = QZEducationalManageSystem()
-        session = ems.login(account)
-        handler = StudentExamGetter()
-        for _ in range(99):
-            pool.add_task(handler.async_handler(session))
+        pool = AsyncTaskPool(max_workers=total_worker)
+        handler = AsyncMock()
+        [pool.add_task(handler()) for _ in range(total_task)]
         pool.run(verbose=True)
-        self.assertTrue(True)
+        self.assertEqual(total_task, handler.call_count)
