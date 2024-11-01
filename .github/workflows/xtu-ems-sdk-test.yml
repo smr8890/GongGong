@@ -41,9 +41,11 @@ jobs:
       - name: Install XTU_EMS SDK
         run: pip install --no-index --find-links=./dist xtu-ems
 
-      - name: PyTest with SDK
+      - name: Add source code folder to PYTHONPATH
         env:
-          PYTHONPATH: "${{ github.workspace }}/src"
+          PYTHONPATH: "${{ github.workspace }}/src"  # 添加项目文件夹到 PYTHONPATH
+        run: echo "PYTHONPATH is set to $PYTHONPATH"
+      - name: PyTest with SDK
         run: |
           cd tests
           pytest
