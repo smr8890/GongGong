@@ -43,7 +43,7 @@ jobs:
 
       - name: Add source code folder to PYTHONPATH
         env:
-          PYTHONPATH: "${{ github.workspace }}/src"  # 添加项目文件夹到 PYTHONPATH
+          PYTHONPATH: "${{ github.workspace }}/src"
         run: echo "PYTHONPATH is set to $PYTHONPATH"
       - name: PyTest with SDK
         run: |
