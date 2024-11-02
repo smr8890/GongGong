@@ -1,19 +1,6 @@
 name: Xtu EMS SDK test
 
-on:
-  push:
-    branches:
-      - master
-      - develop
-      - release
-    tags:
-      - auto_test
-      - release
-      - pre_release
-
-env:
-  XTU_USERNAME: ${{ secrets.XTU_USERNAME }}
-  XTU_PASSWORD: ${{ secrets.XTU_PASSWORD }}
+on: [ push, fork, pull_request ]
 
 jobs:
   build:
@@ -35,20 +22,18 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install pytest wheel setuptools
+      - name: PyTest with SDK
+        env:
+          XTU_USERNAME: ${{ secrets.XTU_USERNAME }}
+          XTU_PASSWORD: ${{ secrets.XTU_PASSWORD }}
+          PYTHONPATH: "${{ github.workspace }}/src"
+        working-directory: ./tests
+        run: |
+          pytest
+
       - name: Build wheel
         run: sh build.sh
 
-      - name: Install XTU_EMS SDK
-        run: pip install --no-index --find-links=./dist xtu-ems
-
-      - name: Add source code folder to PYTHONPATH
-        env:
-          PYTHONPATH: "${{ github.workspace }}/src"
-        run: echo "PYTHONPATH is set to $PYTHONPATH"
-      - name: PyTest with SDK
-        run: |
-          cd tests
-          pytest
       - name: Archive production artifacts
         uses: actions/upload-artifact@v4
         with:
