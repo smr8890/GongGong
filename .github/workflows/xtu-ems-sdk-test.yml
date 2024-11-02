@@ -29,7 +29,17 @@ jobs:
           PYTHONPATH: "${{ github.workspace }}/src"
         working-directory: ./tests
         run: |
-          pytest
+          pip install pytest pytest-html pytest-xdist
+          pytest -n auto --html=test-reports/report-${{ matrix.python-version }}.html --self-contained-html
+
+      - name: Upload pytest test results
+        uses: actions/upload-artifact@v4
+        with:
+          compression-level: 0
+          name: pytest-results-${{ matrix.python-version }}
+          path: tests/test-reports/report-${{ matrix.python-version }}.html
+          # Use always() to always run this step to publish test results when there are test failures
+        if: ${{ always() }}
 
       - name: Build wheel
         run: sh build.sh
@@ -37,6 +47,7 @@ jobs:
       - name: Archive production artifacts
         uses: actions/upload-artifact@v4
         with:
+          compression-level: 9
           name: dist-${{ matrix.python-version }}
           path: |
             dist
