@@ -2,10 +2,11 @@ import asyncio
 from abc import abstractmethod
 from typing import TypeVar, Generic
 
-_DATA = TypeVar('_DATA')
+_KEY = TypeVar('_KEY')
+_VAL = TypeVar('_VAL')
 
 
-class KVRepository(Generic[_DATA]):
+class KVRepository(Generic[_KEY, _VAL]):
     """
     键值存储仓库
 
@@ -28,10 +29,10 @@ class KVRepository(Generic[_DATA]):
         loop = self.__get_loop()
         return loop.run_until_complete(coroutine)
 
-    def __getitem__(self, item):
+    def __getitem__(self, item: _KEY):
         return self.__run_async(self.async_get_item(item))
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key: _KEY, value: _VAL):
         self.__run_async(self.async_set_item(key, value))
 
     async def __aenter__(self):
@@ -46,27 +47,27 @@ class KVRepository(Generic[_DATA]):
         pass
 
     @abstractmethod
-    async def async_get_item(self, key):
+    async def async_get_item(self, key: _KEY):
         """异步获取键值"""
         pass
 
     @abstractmethod
-    async def async_set_item(self, key, value):
+    async def async_set_item(self, key: _KEY, value: _VAL):
         """异步设置键值"""
         pass
 
 
-class SimpleKVRepository(KVRepository[_DATA]):
+class SimpleKVRepository(KVRepository[_KEY, _VAL]):
     """简单键值存储仓库"""
 
     def __init__(self):
-        self.data = {}
+        self.data: dict[_KEY, _VAL] = {}
 
     async def close(self):
         pass
 
-    async def async_get_item(self, key):
+    async def async_get_item(self, key: _KEY):
         return self.data.get(key)
 
-    async def async_set_item(self, key, value):
+    async def async_set_item(self, key: _KEY, value: _VAL):
         self.data[key] = value

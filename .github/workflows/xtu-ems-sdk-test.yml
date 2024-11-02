@@ -50,4 +50,4 @@ jobs:
           compression-level: 9
           name: dist-${{ matrix.python-version }}
           path: |
-            dist
+            dist/xtu_ems-**.whl

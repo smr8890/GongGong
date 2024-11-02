@@ -1,3 +1,2 @@
 -r requirements.ems.txt
--r requirements.spider.txt
--r requirements.user.txt
+-r requirements.plat.txt

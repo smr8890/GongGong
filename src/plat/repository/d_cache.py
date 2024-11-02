@@ -4,16 +4,17 @@ from typing import TypeVar, Callable, Awaitable
 from plat.repository.d_basic import KVRepository
 from plat.validator import Validator
 
-_DATA = TypeVar('_DATA')
+_KEY = TypeVar('_KEY')
+_VAL = TypeVar('_VAL')
 
 
-class CacheRepository(KVRepository[_DATA]):
+class CacheRepository(KVRepository[_KEY, _VAL]):
     """二级缓存存储类"""
 
     async def close(self):
         await self.local_cache.close()
 
-    async def async_get_item(self, key):
+    async def async_get_item(self, key: _KEY):
         # 获取本地数据
         local_record = await self.local_cache.async_get_item(key)
         # 如果数据有效则返回
@@ -24,15 +25,15 @@ class CacheRepository(KVRepository[_DATA]):
             res = await self.on_refresh(key, local_record, self.local_cache)
             return res
 
-    async def async_set_item(self, key, value):
+    async def async_set_item(self, key: _KEY, value: _VAL):
         await asyncio.create_task(self.local_cache.async_set_item(key, value))
         await asyncio.create_task(self.on_update(key, value))
 
     def __init__(self,
-                 local_cache: KVRepository[_DATA],
-                 validator: Validator[_DATA],
-                 on_write_back: Callable[[str, _DATA], Awaitable[None]],
-                 on_refresh: Callable[[str, _DATA, KVRepository[_DATA]], Awaitable[_DATA]],
+                 local_cache: KVRepository[_KEY, _VAL],
+                 validator: Validator[_VAL],
+                 on_write_back: Callable[[_KEY, _VAL], Awaitable[None]],
+                 on_refresh: Callable[[_KEY, _VAL, KVRepository[_KEY, _VAL]], Awaitable[_VAL]],
                  ):
 
         """
