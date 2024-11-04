@@ -1,24 +1,30 @@
 """配置类，这些配置可以被这个包下的所有代码公用，同时修改配置不影响业务逻辑"""
 from datetime import datetime
 
-from xtu_ems.basic import BaseConfig
+from pydantic_settings import BaseSettings
 
 
-class BasicUrl(metaclass=BaseConfig):
+class XtuUrlConfiguration(BaseSettings):
     """基础地址"""
 
     XTU_EMS_BASE_URL: str = "https://jwxt.xtu.edu.cn/jsxsd"
     """湘潭大学教务系统-基础地址"""
 
 
-class RequestConfig(metaclass=BaseConfig):
+BasicUrl = XtuUrlConfiguration()
+
+
+class RequestConfiguration(BaseSettings):
     """请求配置"""
 
     XTU_EMS_REQUEST_TIMEOUT: int = 10
     """请求超时时间"""
 
 
-class XTUEMSConfig(metaclass=BaseConfig):
+RequestConfig = RequestConfiguration()
+
+
+class XTUEMSConfiguration(BaseSettings):
     """湘潭大学教务系统配置"""
 
     XTU_EMS_BASE_URL: str = BasicUrl.XTU_EMS_BASE_URL
@@ -70,3 +76,6 @@ class XTUEMSConfig(metaclass=BaseConfig):
             return f"{year - 1}-{year}-{1 if month < 2 else 2}"
         else:
             return f"{year}-{year + 1}-{2 if month < 2 else 1}"
+
+
+XTUEMSConfig = XTUEMSConfiguration()
