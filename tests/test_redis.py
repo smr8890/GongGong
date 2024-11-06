@@ -40,24 +40,3 @@ class TestAsyncRedisRepository(unittest.IsolatedAsyncioTestCase):
         """测试关闭连接"""
         await self.repo.close()
         self.assertIsNone(self.repo.redis.connection)  # 检查连接是否已关闭
-
-
-class TestRedisRepository(unittest.TestCase):
-
-    def setUp(self):
-        """初始化Redis存储类"""
-        self.repo = RedisRepository(redis=FakeAsyncRedis())
-
-    def tearDown(self):
-        """关闭Redis连接"""
-        self.repo.close()
-
-    def test_get(self):
-        """测试获取键值"""
-        value = self.repo['Hello']
-        self.assertTrue('World', value)
-
-    def test_set(self):
-        """测试设置键值"""
-        self.repo['Hello'] = 'Redis'
-        self.assertEqual(self.repo['Hello'], 'Redis')

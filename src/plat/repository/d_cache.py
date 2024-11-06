@@ -11,6 +11,12 @@ _VAL = TypeVar('_VAL')
 class CacheRepository(KVRepository[_KEY, _VAL]):
     """二级缓存存储类"""
 
+    def __aiter__(self):
+        return aiter(self.local_cache)
+
+    async def async_del_item(self, key: _KEY):
+        await self.local_cache.async_del_item(key)
+
     async def close(self):
         await self.local_cache.close()
 

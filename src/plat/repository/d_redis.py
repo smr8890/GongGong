@@ -1,4 +1,4 @@
-from typing import TypeVar, Callable, Union
+from typing import TypeVar, Callable, Union, AsyncIterator
 
 from redis.asyncio import Redis
 
@@ -58,3 +58,37 @@ class RedisRepository(KVRepository[_KEY, _VAL]):
     async def async_set_item(self, key: _KEY, value: _VAL):
         value = self.serializer(value)
         await self.redis.set(key, value)
+
+    class Iterator(AsyncIterator):
+        def __init__(self, redis: Redis, pattern: str = '*'):
+            """
+            Initializes an iterator for Redis keys matching the given pattern.
+            Args:
+                redis: Redis connection object
+                pattern: Pattern to match keys (default '*')
+            """
+            self.redis = redis
+            self.pattern = pattern
+            self._cursor = 0
+            self._keys = []
+
+        async def __anext__(self) -> _KEY:
+            # Fetch the next batch of keys if we have exhausted the current batch
+            if not self._keys:
+                self._cursor, self._keys = await self.redis.scan(cursor=self._cursor, match=self.pattern)
+                # If no more keys and cursor is back to zero, we are done
+                if not self._keys and self._cursor == 0:
+                    raise StopAsyncIteration
+
+            # Return the next key
+            return self._keys.pop(0)
+
+    def __aiter__(self) -> AsyncIterator[_KEY]:
+        """
+        Allows RedisRepository to be used as an asynchronous iterator.
+        Iterates over keys in the Redis database that match the specified pattern.
+        """
+        return RedisRepository.Iterator(self.redis, '*')
+
+    async def async_del_item(self, key: _KEY):
+        await self.redis.delete(key)
