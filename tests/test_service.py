@@ -3,9 +3,9 @@ from datetime import timedelta
 from unittest.async_case import IsolatedAsyncioTestCase
 from unittest.mock import patch
 
-from plat.entity import Account, AccountStatus
 from plat.repository.d_basic import SimpleKVRepository
-from plat.service import PersonalInfoService, PublicInfoService
+from plat.service.entity import Account, AccountStatus
+from plat.service.info_service import PersonalInfoService, PublicInfoService
 from xtu_ems.ems.handler.get_student_courses import StudentCourseGetter
 from xtu_ems.ems.handler.get_teaching_calendar import TeachingCalendarGetter
 from xtu_ems.ems.handler.valid_session import SessionValidator

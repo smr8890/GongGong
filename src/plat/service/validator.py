@@ -2,7 +2,7 @@ from abc import abstractmethod
 from datetime import datetime, timedelta
 from typing import Generic, TypeVar
 
-from plat.entity import TimedEntity, TaskEntity
+from plat.service.entity import TimedEntity, TaskEntity
 
 _DATA = TypeVar('_DATA')
 

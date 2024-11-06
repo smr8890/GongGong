@@ -1,7 +1,7 @@
 import logging
 
-from plat.entity import TaskEntity, Account, AccountStatus
 from plat.repository.d_basic import KVRepository
+from plat.service.entity import TaskEntity, Account, AccountStatus
 from xtu_ems.ems.handler import Handler
 from xtu_ems.ems.handler.valid_session import SessionValidator
 from xtu_ems.ems.session import Session

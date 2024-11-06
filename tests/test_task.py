@@ -1,9 +1,9 @@
 from unittest.async_case import IsolatedAsyncioTestCase
 from unittest.mock import patch, Mock, AsyncMock
 
-from plat.entity import Account, AccountStatus, TaskEntity
 from plat.repository.d_basic import SimpleKVRepository
-from plat.task import UpdateTask
+from plat.service.entity import Account, AccountStatus, TaskEntity
+from plat.service.task import UpdateTask
 from xtu_ems.ems.handler.get_student_courses import StudentCourseGetter
 
 

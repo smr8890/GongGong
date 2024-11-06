@@ -3,11 +3,11 @@ from abc import abstractmethod
 from datetime import timedelta
 from typing import TypeVar, Generic
 
-from plat.entity import TaskEntity
 from plat.repository.d_basic import KVRepository, SimpleKVRepository
 from plat.repository.d_cache import CacheRepository
-from plat.task import UpdateTask, PersonalUpdateTask
-from plat.validator import TaskValidator
+from plat.service.entity import TaskEntity
+from plat.service.task import UpdateTask, PersonalUpdateTask
+from plat.service.validator import TaskValidator
 from xtu_ems.ems.handler import Handler
 
 D = TypeVar('D')
@@ -97,10 +97,11 @@ class PublicInfoService(PersonalInfoService[D]):
         """
         return UpdateTask(key, self.handler, storage, self.account_repository)
 
-    def __init__(self, name: str,
+    def __init__(self,
                  handler: Handler,
                  update_expire: timedelta,
                  submit_expire: timedelta,
-                 account_repository: KVRepository):
+                 account_repository: KVRepository,
+                 name: str = "data"):
         super().__init__(handler, update_expire, submit_expire, account_repository)
         self.name = name

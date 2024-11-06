@@ -2,7 +2,7 @@ import asyncio
 from typing import TypeVar, Callable, Awaitable
 
 from plat.repository.d_basic import KVRepository
-from plat.validator import Validator
+from plat.service.validator import Validator
 
 _KEY = TypeVar('_KEY')
 _VAL = TypeVar('_VAL')
