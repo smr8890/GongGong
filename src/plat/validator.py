@@ -45,7 +45,10 @@ class TaskValidator(Validator[TaskEntity]):
         self.submit_expire: timedelta = submit_expire
 
     def validate(self, item: TaskEntity) -> bool:
-        now = datetime.now()
-        # 更新时间超出并且提交时间也超出才认为数据过期，需要重新获取
-        return not (now - item.update_time > self.update_expire and
-                    now - item.submit_time > self.submit_expire)
+        if item is not None and hasattr(item, 'update_time') and hasattr(item, 'submit_time'):
+            now = datetime.now()
+            # 更新时间超出并且提交时间也超出才认为数据过期，需要重新获取
+            return not (now - item.update_time > self.update_expire and
+                        now - item.submit_time > self.submit_expire)
+        else:
+            return False

@@ -13,12 +13,15 @@ class TimedEntity:
 
     def __init__(self, data=None):
         self.__dict__['data'] = data
-        self.create_time = datetime.now()
-        self.update_time = datetime.now()
+        self.__dict__['create_time'] = datetime.now()
 
     def __setattr__(self, key, value):
         """拦截所有属性的设置，更新更新时间为当前时间"""
         self.__dict__['update_time'] = datetime.now()
+        self.__dict__[key] = value
+
+    def set_without_update(self, key, value):
+        """不更新更新时间"""
         self.__dict__[key] = value
 
 
@@ -27,6 +30,7 @@ class TaskEntity(TimedEntity):
 
     def __init__(self, data=None):
         super().__init__(data)
+        self.data = None
         self.submit_time = None
 
     def on_submit_task(self):
