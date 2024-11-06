@@ -59,7 +59,7 @@ class Account(BaseModel):
     """学号"""
     password: str
     """密码"""
-    _token: str = uuid.uuid4()
+    _token: str = str(uuid.uuid4())
     """用户凭证"""
     session: str = None
     """用户Session"""
@@ -90,5 +90,11 @@ class Account(BaseModel):
     @property
     def token(self):
         """获取用户凭证"""
+        self.last_use_time = datetime.now()
+        return self._token
+
+    def refresh_token(self):
+        """刷新用户凭证"""
+        self._token = str(uuid.uuid4())
         self.last_use_time = datetime.now()
         return self._token
