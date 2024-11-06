@@ -1,7 +1,12 @@
+import asyncio
+import logging
+
 from plat.repository.d_basic import KVRepository, SimpleKVRepository
 from plat.service.entity import Account, AccountStatus
 from xtu_ems.ems.account import AuthenticationAccount
 from xtu_ems.ems.ems import QZEducationalManageSystem
+from xtu_ems.ems.handler.valid_session import SessionValidator
+from xtu_ems.ems.session import Session
 
 
 class ExpiredAccountException(Exception):
@@ -20,6 +25,7 @@ class BannedAccountException(Exception):
 
 class AccountService:
     ems = QZEducationalManageSystem()
+    session_validator = SessionValidator()
 
     def __init__(self, account_repository: KVRepository[str, Account],
                  token_repository: KVRepository[str, Account] = SimpleKVRepository()):
@@ -114,3 +120,24 @@ class AccountService:
             return account
         else:
             return None
+
+    async def refresh_session(self, interval: int):
+        """
+        刷新session
+        """
+
+        async def refresh_task():
+            async for student_id in self.account_repository:
+                account = await self.account_repository.async_get_item(student_id)
+                if not self.session_validator.handler(Session(session_id=account.session)):
+                    # 为验证通过， 认定失效账户
+                    logging.debug(f'账户 {account.student_id} 已失效')
+                    await self.expire_account(account.student_id)
+                else:
+                    # 为验证通过， 认定失效账户
+                    logging.debug(f'账户 {account.student_id} 已验证通过')
+
+        while True:
+            logging.info('开始刷新session')
+            asyncio.create_task(refresh_task())
+            await asyncio.sleep(interval)

@@ -2,7 +2,7 @@ from unittest.async_case import IsolatedAsyncioTestCase
 from unittest.mock import AsyncMock
 
 from plat.repository.d_basic import SimpleKVRepository
-from plat.service.account_service import AccountService, ExpiredAccountException
+from plat.service.acc_service import AccountService, ExpiredAccountException
 from xtu_ems.ems.session import Session
 
 
