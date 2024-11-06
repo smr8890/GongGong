@@ -54,5 +54,6 @@ class StudentCourseGetter(EMSGetter[CourseTable]):
         next_c = classroom.find_next_sibling(string='---------------------')
         ret = [course]
         if next_c is not None:
-            ret += self._extra_courses(next_c, course_name, day=day, start=start)
+            next_course_name = next_c.next_sibling.next_sibling.text
+            ret += self._extra_courses(next_c, next_course_name, day=day, start=start)
         return ret
