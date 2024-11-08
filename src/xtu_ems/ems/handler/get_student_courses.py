@@ -12,7 +12,7 @@ class StudentCourseGetter(EMSGetter[CourseTable]):
 
     def _extra_info(self, soup: BeautifulSoup):
         class_table = soup.find(id="kbtable")
-        return self._extra_student_courses(class_table)
+        return self._extra_student_courses(class_table).to_list()
 
     def _extra_student_courses(self, class_table: BeautifulSoup):
         table = CourseTable()

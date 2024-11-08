@@ -32,13 +32,21 @@ def fail(data=None, message='fail'):
     )
 
 
+def invalid_authority():
+    return Response(
+        code=-1,
+        message='无效的权限',
+        data=None
+    )
+
+
 @app.post("/login")
 async def login(username: str = Body(description="学号"), password: str = Body(description="密码")):
     """登陆接口"""
     try:
         account = await account_service.login(username, password)
         if account:
-            return success(account.token)
+            return success({'token': account.token})
         else:
             return fail()
     except ExpiredAccountException as e:
@@ -49,15 +57,18 @@ async def login(username: str = Body(description="学号"), password: str = Body
         return fail(message=f"账户密码错误")
     except InvalidCaptchaException as e:
         return fail(message=f"系统繁忙，请稍后重试")
+    except TimeoutError as e:
+        return fail(message=f'服务器超时，请稍后')
 
 
 async def do_gets(service: IService[any], token: str):
     """获取信息"""
     account = await account_service.auth_with_token(token)
     if account:
-        return await service.get_info(account.student_id)
+        data = await service.get_info(account.student_id)
+        return success(data)
     else:
-        return fail('无效账户')
+        return invalid_authority()
 
 
 @app.get("/courses")

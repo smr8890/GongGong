@@ -19,13 +19,13 @@ info_service = PersonalInfoService(handler=StudentInfoGetter(),
                                    )
 
 score_service = PersonalInfoService(handler=StudentTranscriptGetter(),
-                                    update_expire=timedelta(minutes=30),
+                                    update_expire=timedelta(days=1),
                                     submit_expire=timedelta(minutes=15),
                                     account_repository=account_repository
                                     )
 
 course_service = PersonalInfoService(handler=StudentCourseGetter(),
-                                     update_expire=timedelta(hours=12),
+                                     update_expire=timedelta(days=1),
                                      submit_expire=timedelta(minutes=20),
                                      account_repository=account_repository
                                      )
@@ -37,7 +37,7 @@ exam_service = PersonalInfoService(handler=StudentExamGetter(),
                                    )
 
 rank_service = PersonalInfoService(handler=StudentTranscriptGetter(),
-                                   update_expire=timedelta(minutes=30),
+                                   update_expire=timedelta(days=1),
                                    submit_expire=timedelta(minutes=15),
                                    account_repository=account_repository
                                    )

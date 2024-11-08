@@ -4,7 +4,7 @@ import logging
 from plat.repository.d_basic import KVRepository, SimpleKVRepository
 from plat.service.entity import Account, AccountStatus
 from xtu_ems.ems.account import AuthenticationAccount
-from xtu_ems.ems.ems import QZEducationalManageSystem
+from xtu_ems.ems.ems import QZEducationalManageSystem, InvalidAccountException
 from xtu_ems.ems.handler.valid_session import SessionValidator
 from xtu_ems.ems.session import Session
 
@@ -50,20 +50,27 @@ class AccountService:
         Returns:
 
         """
-        account = AuthenticationAccount(username=username, password=password)
-        session = await self.ems.async_login(account)
+        # 本地有账户， 直接通过对比本地账户验证登陆
         authed_account = await self.account_repository.async_get_item(username)
         if authed_account:
+            if authed_account.password != password:
+                raise InvalidAccountException()
+            return authed_account
+        # 本地无账户或者本地账户失效
+        account = AuthenticationAccount(username=username, password=password)
+        session = await self.ems.async_login(account)
+        if authed_account:
+            # 本地有账户， 直接更新本地账户
+            authed_account.password = password
             authed_account.session = session.session_id
             authed_account.status = AccountStatus.NORMAL
-            token = authed_account.token
-            await self.token_repository.async_del_item(token)
-            authed_account.refresh_token()
-        else:
-            authed_account = Account(student_id=username,
-                                     password=password,
-                                     session=session.session_id,
-                                     status=AccountStatus.NORMAL)
+            authed_account = await self.save_new_account(authed_account)
+            return authed_account
+        # 本地没有账户， 直接登陆
+        authed_account = Account(student_id=username,
+                                 password=password,
+                                 session=session.session_id,
+                                 status=AccountStatus.NORMAL)
         authed_account = await self.save_new_account(authed_account)
         return authed_account
 
