@@ -23,8 +23,7 @@ class TestStudentCourseGetter(TestCase):
             resp = ems_session.post(url=url, data={"xnxq01id": "2022-2023-2"},
                                     timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
         import bs4
-        res = handler._extra_info(bs4.BeautifulSoup(resp.text, "html.parser"))
-        li = res.to_list()
+        li = handler._extra_info(bs4.BeautifulSoup(resp.text, "html.parser"))
         info = InformationPackage(student_id=username, data=li)
         print(info.model_dump_json(indent=4))
         self.assertIsNotNone(li)
