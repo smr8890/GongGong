@@ -1,4 +1,5 @@
 """校务系统信息"""
+from dataclasses import field
 from datetime import datetime, date as ddate
 from typing import Tuple, Literal, TypeVar, Generic
 
@@ -79,19 +80,19 @@ def _get_day_name(day: int):
 class CourseList(BaseModel):
     """课程列表"""
 
-    courses: list[CourseInfo] = []
+    courses: list[CourseInfo] = field(default_factory=list)
     """课程列表"""
 
 
 class CourseTable(BaseModel):
     """课程表数据结构"""
-    Sunday: list[list[CourseInfo]] = []
-    Monday: list[list[CourseInfo]] = []
-    Tuesday: list[list[CourseInfo]] = []
-    Wednesday: list[list[CourseInfo]] = []
-    Thursday: list[list[CourseInfo]] = []
-    Friday: list[list[CourseInfo]] = []
-    Saturday: list[list[CourseInfo]] = []
+    Sunday: list[list[CourseInfo]] = field(default_factory=list)
+    Monday: list[list[CourseInfo]] = field(default_factory=list)
+    Tuesday: list[list[CourseInfo]] = field(default_factory=list)
+    Wednesday: list[list[CourseInfo]] = field(default_factory=list)
+    Thursday: list[list[CourseInfo]] = field(default_factory=list)
+    Friday: list[list[CourseInfo]] = field(default_factory=list)
+    Saturday: list[list[CourseInfo]] = field(default_factory=list)
 
     def __getitem__(self, item):
         # 判断item是否是一个int，如果为int，则返回相应的课程表
@@ -135,7 +136,7 @@ class ScoreBoard(BaseModel):
     major: str = ""
     """专业"""
 
-    scores: list[Score] = []
+    scores: list[Score] = field(default_factory=list)
     """成绩列表"""
     total_credit: Tuple[str, str] = (0, 0)
     """总学分"""
@@ -189,7 +190,7 @@ class ExamInfo(BaseModel):
 class ExamInfoList(BaseModel):
     """考试信息列表"""
 
-    exams: list[ExamInfo] = []
+    exams: list[ExamInfo] = field(default_factory=list)
     """考试信息"""
 
 
@@ -217,7 +218,7 @@ class ClassroomStatus(BaseModel):
 
     name: str = ""
     """教室名称"""
-    status: list[str] = []
+    status: list[str] = field(default_factory=list)
     """教室状态"""
 
 
@@ -232,7 +233,7 @@ class CategoryClassroomBoard(BaseModel):
 class ClassroomBoard(BaseModel):
     """教室信息"""
 
-    classrooms: list[ClassroomStatus] = []
+    classrooms: list[ClassroomStatus] = field(default_factory=list)
     """教室信息"""
     date: ddate = datetime.now().date()
     """日期"""

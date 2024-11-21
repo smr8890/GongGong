@@ -1,3 +1,0 @@
--r requirements.ems.txt
-redis~=5.1.0
-fakeredis~=2.26.1

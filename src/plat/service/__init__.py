@@ -7,7 +7,7 @@ from xtu_ems.ems.handler.get_classroom_status import TodayClassroomStatusGetter,
 from xtu_ems.ems.handler.get_student_courses import StudentCourseGetter
 from xtu_ems.ems.handler.get_student_exam import StudentExamGetter
 from xtu_ems.ems.handler.get_student_info import StudentInfoGetter
-from xtu_ems.ems.handler.get_students_transcript import StudentTranscriptGetter
+from xtu_ems.ems.handler.get_students_transcript import StudentTranscriptGetter, StudentRankGetter
 from xtu_ems.ems.handler.get_teaching_calendar import TeachingCalendarGetter
 
 account_repository = SimpleKVRepository()
@@ -36,7 +36,7 @@ exam_service = PersonalInfoService(handler=StudentExamGetter(),
                                    account_repository=account_repository
                                    )
 
-rank_service = PersonalInfoService(handler=StudentTranscriptGetter(),
+rank_service = PersonalInfoService(handler=StudentRankGetter(),
                                    update_expire=timedelta(days=1),
                                    submit_expire=timedelta(minutes=15),
                                    account_repository=account_repository
