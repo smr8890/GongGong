@@ -14,48 +14,48 @@ account_repository = SimpleKVRepository()
 
 info_service = PersonalInfoService(handler=StudentInfoGetter(),
                                    update_expire=timedelta(days=1),
-                                   submit_expire=timedelta(minutes=3),
+                                   submit_expire=timedelta(minutes=1),
                                    account_repository=account_repository
                                    )
 
 score_service = PersonalInfoService(handler=StudentTranscriptGetter(),
                                     update_expire=timedelta(days=1),
-                                    submit_expire=timedelta(minutes=15),
+                                    submit_expire=timedelta(minutes=1),
                                     account_repository=account_repository
                                     )
 
 course_service = PersonalInfoService(handler=StudentCourseGetter(),
                                      update_expire=timedelta(days=1),
-                                     submit_expire=timedelta(minutes=20),
+                                     submit_expire=timedelta(minutes=1),
                                      account_repository=account_repository
                                      )
 
 exam_service = PersonalInfoService(handler=StudentExamGetter(),
                                    update_expire=timedelta(days=1),
-                                   submit_expire=timedelta(minutes=20),
+                                   submit_expire=timedelta(minutes=1),
                                    account_repository=account_repository
                                    )
 
 rank_service = PersonalInfoService(handler=StudentRankGetter(),
                                    update_expire=timedelta(days=1),
-                                   submit_expire=timedelta(minutes=15),
+                                   submit_expire=timedelta(minutes=10),
                                    account_repository=account_repository
                                    )
 
 calendar_service = PublicInfoService(handler=TeachingCalendarGetter(),
                                      update_expire=timedelta(days=30),
-                                     submit_expire=timedelta(minutes=15),
+                                     submit_expire=timedelta(minutes=1),
                                      account_repository=account_repository
                                      )
 
 today_classroom_service = PublicInfoService(handler=TodayClassroomStatusGetter(),
                                             update_expire=timedelta(hours=12),
-                                            submit_expire=timedelta(minutes=15),
+                                            submit_expire=timedelta(minutes=1),
                                             account_repository=account_repository
                                             )
 tomorrow_classroom_service = PublicInfoService(handler=TomorrowClassroomStatusGetter(),
                                                update_expire=timedelta(hours=12),
-                                               submit_expire=timedelta(minutes=15),
+                                               submit_expire=timedelta(minutes=1),
                                                account_repository=account_repository
                                                )
 
