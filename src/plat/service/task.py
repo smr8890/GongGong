@@ -6,6 +6,8 @@ from xtu_ems.ems.handler import Handler
 from xtu_ems.ems.handler.valid_session import SessionValidator
 from xtu_ems.ems.session import Session
 
+logger = logging.getLogger('task.update')
+
 
 class UpdateTask:
     session_validator = SessionValidator()
@@ -26,6 +28,7 @@ class UpdateTask:
         self.storage = storage
         self.handler = handler
         self.user_repository = user_repository
+        logger.info(f"创建了一个更新任务: [{handler.__class__.__name__}]-[{key}]")
 
     async def get_account(self) -> Account:
         """
@@ -47,7 +50,7 @@ class UpdateTask:
                 result = await self.handler.async_handler(Session(session_id=session))
             except Exception as e:
                 # 认为Session可能过期了
-                logging.error(f"Session {account.student_id} 的SESSION可能过期了，需要重新登陆")
+                logger.info(f"Session {account.student_id} 的SESSION可能过期了，需要重新登陆")
                 account.status = AccountStatus.EXPIRED
                 return None
             # 更新数据

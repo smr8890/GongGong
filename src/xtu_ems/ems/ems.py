@@ -10,6 +10,8 @@ from xtu_ems.ems.config import XTUEMSConfig, RequestConfig
 from xtu_ems.ems.session import Session
 from xtu_ems.util.captcha import ImageDetector
 
+logger = logging.getLogger('xtu-ems.login')
+
 
 class EducationalManageSystem(ABC):
     """教务系统类"""
@@ -88,16 +90,17 @@ class QZEducationalManageSystem(EducationalManageSystem):
             raise Exception("登陆失败")
         for i in range(retry_time):
             try:
-                return self._login(account)
+                session = self._login(account)
+                logger.info(f'登陆成功-{account.username}')
+                return session
             except InvalidAccountException as e:
                 err = e
+                logger.info(f'错误的账号密码-{account.username}')
                 break
             except InvalidCaptchaException as e:
                 err = e
+                logger.debug(f'正在重试{i}/{retry_time}次登陆失败-验证码错误')
                 continue
-            finally:
-                logging.error(err)
-                logging.debug(f'登陆失败，正在重试{i}/{retry_time}次')
         raise err
 
     async def async_login(self, account: AuthenticationAccount, retry_time=3) -> Session:
@@ -117,16 +120,17 @@ class QZEducationalManageSystem(EducationalManageSystem):
             raise Exception("登陆失败")
         for i in range(retry_time):
             try:
-                return await self._async_login(account)
+                session = await self._async_login(account)
+                logger.info(f'登陆成功-{account.username}')
+                return session
             except InvalidAccountException as e:
                 err = e
+                logger.debug('错误的账号密码')
                 break
             except InvalidCaptchaException as e:
                 err = e
+                logger.debug(f'正在重试{i}/{retry_time}次登陆失败-验证码错误')
                 continue
-            finally:
-                logging.error(err)
-                logging.debug(f'登陆失败，正在重试{i}/{retry_time}次')
         raise err
 
     async def _async_login(self, account: AuthenticationAccount) -> Session:

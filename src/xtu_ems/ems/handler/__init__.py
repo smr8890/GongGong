@@ -1,3 +1,4 @@
+import logging
 from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
 
@@ -10,6 +11,8 @@ from xtu_ems.ems.session import Session
 
 _R = TypeVar("_R")
 """返回值类型"""
+
+logger = logging.getLogger('xtu-ems.handler')
 
 
 class Handler(ABC, Generic[_R]):
@@ -33,6 +36,7 @@ class EMSGetter(Handler[_R]):
     def handler(self, session: Session, *args, **kwargs) -> _R:
         """获取学生信息"""
         with self._get_session(session) as ems_session:
+            logger.debug(f'[{self.__class__.__name__}] 正在获取数据-{self.url()}')
             resp = ems_session.get(self.url(), timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
             soup = BeautifulSoup(resp.text, 'html.parser')
             return self._extra_info(soup)
@@ -41,6 +45,7 @@ class EMSGetter(Handler[_R]):
         """异步获取学生信息"""
         from aiohttp import ClientSession
         async with ClientSession(cookies={QZEducationalManageSystem.SESSION_NAME: session.session_id}) as ems_session:
+            logger.debug(f'[{self.__class__.__name__}] 正在异步获取数据-{self.url()}')
             resp = await ems_session.get(self.url(), timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
             soup = BeautifulSoup(await resp.text(), 'html.parser')
             return self._extra_info(soup)
@@ -58,6 +63,7 @@ class EMSPoster(EMSGetter[_R]):
     def handler(self, session: Session, *args, **kwargs) -> _R:
         """获取学生信息"""
         with self._get_session(session) as ems_session:
+            logger.debug(f'[{self.__class__.__name__}] 正在获取数据-{self.url()}')
             resp = ems_session.post(url=self.url(), data=self._data(), timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
             soup = BeautifulSoup(resp.text, 'html.parser')
             return self._extra_info(soup)
@@ -66,6 +72,7 @@ class EMSPoster(EMSGetter[_R]):
         """异步获取学生信息"""
         from aiohttp import ClientSession
         async with ClientSession(cookies={QZEducationalManageSystem.SESSION_NAME: session.session_id}) as ems_session:
+            logger.debug(f'[{self.__class__.__name__}] 正在异步获取数据-{self.url()}')
             resp = await ems_session.post(url=self.url(), data=self._data(),
                                           timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
             soup = BeautifulSoup(await resp.text(), 'html.parser')

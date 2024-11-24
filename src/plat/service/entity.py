@@ -14,6 +14,7 @@ class TimedEntity:
     def __init__(self, data=None):
         self.__dict__['data'] = data
         self.__dict__['create_time'] = datetime.now()
+        self.__dict__['update_time'] = None
 
     def __setattr__(self, key, value):
         """拦截所有属性的设置，更新更新时间为当前时间"""
@@ -30,8 +31,8 @@ class TaskEntity(TimedEntity):
 
     def __init__(self, data=None):
         super().__init__(data)
-        self.data = None
-        self.submit_time = None
+        self.__dict__['data'] = data
+        self.__dict__['submit_time'] = datetime.now()
 
     def on_submit_task(self):
         """当提交任务，更新提交时间为当前时间"""

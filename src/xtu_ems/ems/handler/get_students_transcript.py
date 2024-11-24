@@ -6,7 +6,7 @@ from pdfplumber import PDF
 
 from xtu_ems.ems.config import XTUEMSConfig, RequestConfig
 from xtu_ems.ems.ems import QZEducationalManageSystem
-from xtu_ems.ems.handler import Handler, _R, EMSPoster
+from xtu_ems.ems.handler import Handler, _R, EMSPoster, logger
 from xtu_ems.ems.model import ScoreBoard, Score, RankInfo
 from xtu_ems.ems.session import Session
 
@@ -32,6 +32,7 @@ class StudentTranscriptGetter(Handler[ScoreBoard]):
         from aiohttp import ClientSession
 
         async with ClientSession(cookies={QZEducationalManageSystem.SESSION_NAME: session.session_id}) as ems_session:
+            logger.debug(f'[{self.__class__.__name__}] 正在异步获取数据-{self.url()}')
             resp = await ems_session.post(url=self.url(), data=_data, timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
             if resp.status == 200:
                 pdf = PDF(BytesIO(await resp.content.read()))
@@ -39,6 +40,7 @@ class StudentTranscriptGetter(Handler[ScoreBoard]):
 
     def handler(self, session: Session, *args, **kwargs):
         with self._get_session(session) as ems_session:
+            logger.debug(f'[{self.__class__.__name__}] 正在获取数据-{self.url()}')
             resp = ems_session.post(url=self.url(), data=_data, timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
             if resp.status_code == 200:
                 pdf = PDF(BytesIO(resp.content))

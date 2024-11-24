@@ -9,7 +9,7 @@ from plat.service import account_service
 
 class RefreshConfiguration(BaseSettings):
     """后台任务配置"""
-    REFRESH_INTERVAL: int = 20 * 60  # 2min
+    REFRESH_INTERVAL: int = 20 * 60  # 20min
 
 
 RefreshConfig = RefreshConfiguration()

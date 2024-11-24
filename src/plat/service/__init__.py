@@ -38,7 +38,7 @@ exam_service = PersonalInfoService(handler=StudentExamGetter(),
 
 rank_service = PersonalInfoService(handler=StudentRankGetter(),
                                    update_expire=timedelta(days=1),
-                                   submit_expire=timedelta(minutes=10),
+                                   submit_expire=timedelta(minutes=1),
                                    account_repository=account_repository
                                    )
 

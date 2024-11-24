@@ -8,6 +8,8 @@ from xtu_ems.ems.ems import QZEducationalManageSystem, InvalidAccountException
 from xtu_ems.ems.handler.valid_session import SessionValidator
 from xtu_ems.ems.session import Session
 
+logger = logging.getLogger('task.refresh')
+
 
 class ExpiredAccountException(Exception):
     """账户已过期"""
@@ -138,13 +140,13 @@ class AccountService:
                 account = await self.account_repository.async_get_item(student_id)
                 if not self.session_validator.handler(Session(session_id=account.session)):
                     # 为验证通过， 认定失效账户
-                    logging.debug(f'账户 {account.student_id} 已失效')
+                    logger.debug(f'账户 {account.student_id} 已失效')
                     await self.expire_account(account.student_id)
                 else:
                     # 为验证通过， 认定失效账户
-                    logging.debug(f'账户 {account.student_id} 已验证通过')
+                    logger.debug(f'账户 {account.student_id} 已验证通过')
 
         while True:
-            logging.info('开始刷新session')
+            logger.info('开始刷新session')
             asyncio.create_task(refresh_task())
             await asyncio.sleep(interval)
