@@ -12,18 +12,13 @@ class TimedEntity:
     """时间类型的实体类"""
 
     def __init__(self, data=None):
-        self.__dict__['data'] = data
-        self.__dict__['create_time'] = datetime.now()
-        self.__dict__['update_time'] = None
+        self.data = data
+        self.create_time = datetime.now()
+        self.update_time = None
 
-    def __setattr__(self, key, value):
-        """拦截所有属性的设置，更新更新时间为当前时间"""
-        self.__dict__['update_time'] = datetime.now()
+    def update(self, key, value):
         self.__dict__[key] = value
-
-    def set_without_update(self, key, value):
-        """不更新更新时间"""
-        self.__dict__[key] = value
+        self.update_time = datetime.now()
 
 
 class TaskEntity(TimedEntity):
@@ -31,12 +26,11 @@ class TaskEntity(TimedEntity):
 
     def __init__(self, data=None):
         super().__init__(data)
-        self.__dict__['data'] = data
-        self.__dict__['submit_time'] = datetime.now()
+        self.submit_time = None
 
     def on_submit_task(self):
         """当提交任务，更新提交时间为当前时间"""
-        self.__dict__['submit_time'] = datetime.now()
+        self.submit_time = datetime.now()
 
 
 class AccountStatus(Enum):

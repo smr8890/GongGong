@@ -56,7 +56,7 @@ class UpdateTask:
             # 更新数据
             former_record: TaskEntity = ((await self.storage.async_get_item(self.key))
                                          or TaskEntity())
-            former_record.data = result
+            former_record.update(key='data', value=result)
             await self.storage.async_set_item(self.key, former_record)
             return result
         return None
