@@ -27,7 +27,7 @@
       "class": "logging.handlers.TimedRotatingFileHandler",
       "formatter": "standard",
       "level": "INFO",
-      "filename": "fastapi.log",
+      "filename": "../logs/fastapi.log",
       "when": "midnight",
       "backupCount": 60
     },
@@ -35,7 +35,7 @@
       "class": "logging.handlers.TimedRotatingFileHandler",
       "formatter": "standard",
       "level": "DEBUG",
-      "filename": "crawler.log",
+      "filename": "../logs/crawler.log",
       "when": "midnight",
       "backupCount": 60
     },
@@ -43,7 +43,7 @@
       "class": "logging.handlers.TimedRotatingFileHandler",
       "formatter": "standard",
       "level": "DEBUG",
-      "filename": "tasks.log",
+      "filename": "../logs/tasks.log",
       "when": "midnight",
       "backupCount": 60
     }

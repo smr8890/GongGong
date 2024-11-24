@@ -1,3 +1,5 @@
+import os
+
 from fastapi import FastAPI
 
 from plat.api import app
@@ -11,4 +13,5 @@ fastapi_app.include_router(app)
 if __name__ == '__main__':
     import uvicorn
 
+    os.makedirs('../logs', exist_ok=True)
     uvicorn.run(fastapi_app, port=8000, host='0.0.0.0', log_config='./log_config.json')

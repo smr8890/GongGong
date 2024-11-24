@@ -13,4 +13,5 @@ RUN pip install -r requirements.txt
 COPY ./src /app
 
 EXPOSE 8000
+RUN mkdir "/logs"
 ENTRYPOINT ["python", "app.py"]

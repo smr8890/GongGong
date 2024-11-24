@@ -1,7 +1,8 @@
-version: "3.0"
 services:
   api:
     build: .
     ports:
       - "8000:8000"
+    volumes:
+      - ./api-logs:/logs
 
