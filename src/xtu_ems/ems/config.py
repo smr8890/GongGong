@@ -3,6 +3,26 @@ from datetime import datetime
 
 from pydantic_settings import BaseSettings
 
+classroom_prefix_category = {
+    "北山": "北山阶梯",
+    "尚美楼-": "尚美楼",
+    "尚美楼": "尚美楼",
+    "土木楼": "土木楼",
+    "图书馆南": "图书馆南",
+    "机械楼": "机械楼",
+    "南山": "南山阶梯",
+    "外语楼-": "外语楼",
+    "文科楼-": "文科楼",
+    "兴教楼A": "兴教楼A",
+    "兴教楼B": "兴教楼B",
+    "兴教楼C": "兴教楼C",
+    "行远楼-": "行远楼",
+    "一教楼-": "一教楼",
+    "逸夫楼-": "逸夫楼",
+    "逸夫楼": "逸夫楼",
+    "兴湘学院三教-": "兴湘学院三教"
+}
+
 
 class XtuUrlConfiguration(BaseSettings):
     """基础地址"""
@@ -62,9 +82,11 @@ class XTUEMSConfiguration(BaseSettings):
 
     该部分的选择要求：
 
-    - 当Session正常时标题不能为 《湘潭大学综合教务管理系统-湘潭大学》
+    - 当Session正常时标题不能为XTU_EMS_SESSION_VALIDATOR_TITLE
     - 请求尽可能快，否则可能会对性能造成影响
     """
+
+    XTU_EMS_SESSION_VALIDATOR_TITLE: str = "湘潭大学综合教务管理系统-湘潭大学"
 
     @staticmethod
     def get_current_term():

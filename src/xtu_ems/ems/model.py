@@ -5,6 +5,8 @@ from typing import Tuple, Literal, TypeVar, Generic
 
 from pydantic import BaseModel
 
+from xtu_ems.ems.config import classroom_prefix_category
+
 T = TypeVar('T')
 
 
@@ -194,27 +196,6 @@ class ExamInfoList(BaseModel):
     """考试信息"""
 
 
-prefix_category = {
-    "北山": "北山阶梯",
-    "尚美楼-": "尚美楼",
-    "尚美楼": "尚美楼",
-    "土木楼": "土木楼",
-    "图书馆南": "图书馆南",
-    "机械楼": "机械楼",
-    "南山": "南山阶梯",
-    "外语楼-": "外语楼",
-    "文科楼-": "文科楼",
-    "兴教楼A": "兴教楼A",
-    "兴教楼B": "兴教楼B",
-    "兴教楼C": "兴教楼C",
-    "行远楼-": "行远楼",
-    "一教楼-": "一教楼",
-    "逸夫楼-": "逸夫楼",
-    "逸夫楼": "逸夫楼",
-    "兴湘学院三教-": "兴湘学院三教"
-}
-
-
 class ClassroomStatus(BaseModel):
     """教室信息"""
 
@@ -244,9 +225,9 @@ class ClassroomBoard(BaseModel):
         """分类"""
         ret = CategoryClassroomBoard(classrooms={}, date=self.date)
         for classroom in self.classrooms:
-            for prefix in prefix_category:
+            for prefix in classroom_prefix_category:
                 if classroom.name.startswith(prefix):
-                    ret.classrooms.setdefault(prefix_category[prefix], []).append(classroom)
+                    ret.classrooms.setdefault(classroom_prefix_category[prefix], []).append(classroom)
                     # 将教室名称中的前缀去除
                     classroom.name = classroom.name[len(prefix):]
                     break
