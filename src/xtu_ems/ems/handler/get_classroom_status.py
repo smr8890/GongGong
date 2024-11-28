@@ -11,7 +11,7 @@ class TodayClassroomStatusGetter(EMSPoster[CategoryClassroomBoard]):
     """查询教室状态"""
 
     def _data(self):
-        return {'xzlx': "1"}
+        return {'xzlx': "0"}
 
     def _extra_info(self, soup: BeautifulSoup):
         classroom = soup.find(id="dataList").find_all('tr')[2:]
@@ -32,7 +32,7 @@ class TomorrowClassroomStatusGetter(TodayClassroomStatusGetter):
     """查询教室状态"""
 
     def _data(self):
-        return {'xzlx': "2"}
+        return {'xzlx': "1"}
 
     def _extra_info(self, soup: BeautifulSoup):
         classroom = soup.find(id="dataList").find_all('tr')[2:]

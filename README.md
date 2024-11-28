@@ -39,6 +39,10 @@ sudo docker-compose up -d
 
 默认端口映射在***8000***端口上，可以通过`http://<host>:<port>/docs`查看接口文档。
 
+> [!Important]
+> 生产环境下，建议您将该项目的OpenAPI文档关闭。以避免被恶意攻击。
+> 你可以通过设置环境变量 `ENV=prod` 来启用生产环境下的服务。
+
 ### 网络爬虫SDK
 
 > [!Tip]

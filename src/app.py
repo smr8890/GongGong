@@ -7,7 +7,12 @@ from plat.backgroud_task import session_refresher_in_background
 from plat.banner import Banner
 
 Banner().show()
-fastapi_app = FastAPI(lifespan=session_refresher_in_background)
+
+env = os.environ.get('ENV', 'dev')
+if env == 'prod':
+    fastapi_app = FastAPI(lifespan=session_refresher_in_background, docs_url=None, redoc_url=None, openapi_url=None)
+else:
+    fastapi_app = FastAPI(lifespan=session_refresher_in_background)
 fastapi_app.include_router(app)
 
 if __name__ == '__main__':
