@@ -6,3 +6,10 @@ services:
     volumes:
       - ./api-logs:/logs
 
+  feedback:
+    build: ./feedback
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./feedback/dist:/app/dist:ro
+      - ./feedback_files:/app/feedback_files
