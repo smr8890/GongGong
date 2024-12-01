@@ -15,26 +15,29 @@ class StudentCourseGetter(EMSGetter[CourseTable]):
         return self._extra_student_courses(class_table).to_list()
 
     def _extra_student_courses(self, class_table: BeautifulSoup):
-        table = CourseTable()
-        for time, row in enumerate(class_table.find_all("tr")):
-            for week, td in enumerate(row.find_all("td")):
+        try:
+            table = CourseTable()
+            for time, row in enumerate(class_table.find_all("tr")):
+                for week, td in enumerate(row.find_all("td")):
 
-                if td.text.strip() == "":
-                    courses = []
-                else:
-                    course_content = td.find(class_="kbcontent")
-                    if course_content is None:
-                        continue
-                    courses = self._extra_courses(course_content, day=week, start=(time - 1) * 2 + 1)
-                table[week].append(courses)
-        return table
+                    if td.text.strip() == "":
+                        courses = []
+                    else:
+                        course_content = td.find(class_="kbcontent")
+                        if course_content is None:
+                            continue
+                        courses = self._extra_courses(course_content, day=week, start=(time - 1) * 2 + 1)
+                    table[week].append(courses)
+            return table
+        except Exception as e:
+            raise e
 
     def _extra_courses(self, td: Tag, course_name=None, day=0, start=1) -> list[CourseInfo]:
         """提起某一天的课程信息"""
         course_name = course_name or td.contents[0].text
         teacher = td.find_next(title='老师')
         weeks = teacher.find_next(title='周次(节次)')
-        classroom = weeks.find_next(title='教室')
+        classroom = weeks.find_next(title='教室') or Tag(name='p')
         duration = 2
         for i, c in enumerate(classroom.next_siblings):
             if i < 2:
