@@ -19,7 +19,7 @@ class TestStudentCourseGetter(TestCase):
         """测试解析课程"""
         handler = StudentCourseGetter()
         url = handler.url()
-        with handler._get_session(session) as ems_session:
+        with handler.get_session(session) as ems_session:
             resp = ems_session.post(url=url, data={"xnxq01id": "2022-2023-2"},
                                     timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
         import bs4

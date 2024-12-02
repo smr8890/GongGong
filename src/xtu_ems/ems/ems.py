@@ -101,6 +101,10 @@ class QZEducationalManageSystem(EducationalManageSystem):
                 err = e
                 logger.debug(f'正在重试{i}/{retry_time}次登陆失败-验证码错误')
                 continue
+            except TimeoutError as e:
+                err = e
+                logger.debug(f'正在重试{i}/{retry_time}次登陆失败-网络超时')
+                continue
         raise err
 
     async def async_login(self, account: AuthenticationAccount, retry_time=3) -> Session:
@@ -130,6 +134,10 @@ class QZEducationalManageSystem(EducationalManageSystem):
             except InvalidCaptchaException as e:
                 err = e
                 logger.debug(f'正在重试{i}/{retry_time}次登陆失败-验证码错误')
+                continue
+            except TimeoutError as e:
+                err = e
+                logger.debug(f'正在重试{i}/{retry_time}次登陆失败-网络超时')
                 continue
         raise err
 

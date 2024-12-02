@@ -4,6 +4,7 @@ from pydantic import BaseModel
 from plat.service import account_service, course_service, info_service, score_service, exam_service, rank_service, \
     today_classroom_service, tomorrow_classroom_service, calendar_service
 from plat.service.acc_service import ExpiredAccountException, BannedAccountException
+from plat.service.entity import Account
 from plat.service.info_service import IService
 from xtu_ems.ems.ems import InvalidAccountException, InvalidCaptchaException
 
@@ -63,8 +64,11 @@ async def login(username: str = Body(description="学号"), password: str = Body
 
 async def do_gets(service: IService[any], token: str):
     """获取信息"""
-    account = await account_service.auth_with_token(token)
-    if account:
+    try:
+        account: Account = await account_service.auth_with_token(token)
+    except ExpiredAccountException as e:
+        return fail(message=f"账户 {e.username} 已过期")
+    if account and account.token == token:
         data = await service.get_info(account.student_id)
         return success(data)
     else:

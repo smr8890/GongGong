@@ -3,6 +3,7 @@ from abc import ABC, abstractmethod
 from typing import Generic, TypeVar
 
 import requests
+from aiohttp import ClientSession
 from bs4 import BeautifulSoup
 
 from xtu_ems.ems.config import RequestConfig
@@ -26,16 +27,26 @@ class Handler(ABC, Generic[_R]):
         """异步处理"""
         pass
 
-    def _get_session(self, session: Session):
+    def get_session(self, session: Session):
         sess = requests.session()
         sess.cookies.set(QZEducationalManageSystem.SESSION_NAME, session.session_id)
+        sess.headers.setdefault('User-Agent',
+                                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                                'Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.41')
+        return sess
+
+    def get_async_session(self, session: Session):
+        sess = ClientSession(cookies={QZEducationalManageSystem.SESSION_NAME: session.session_id})
+        sess.headers.setdefault('User-Agent',
+                                'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) '
+                                'Chrome/111.0.0.0 Safari/537.36 Edg/111.0.1661.41')
         return sess
 
 
 class EMSGetter(Handler[_R]):
     def handler(self, session: Session, *args, **kwargs) -> _R:
         """获取学生信息"""
-        with self._get_session(session) as ems_session:
+        with self.get_session(session) as ems_session:
             logger.debug(f'[{self.__class__.__name__}] 正在获取数据-{self.url()}')
             resp = ems_session.get(self.url(), timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
             soup = BeautifulSoup(resp.text, 'html.parser')
@@ -43,7 +54,6 @@ class EMSGetter(Handler[_R]):
 
     async def async_handler(self, session: Session, *args, **kwargs) -> _R:
         """异步获取学生信息"""
-        from aiohttp import ClientSession
         async with ClientSession(cookies={QZEducationalManageSystem.SESSION_NAME: session.session_id}) as ems_session:
             logger.debug(f'[{self.__class__.__name__}] 正在异步获取数据-{self.url()}')
             resp = await ems_session.get(self.url(), timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
@@ -62,7 +72,7 @@ class EMSGetter(Handler[_R]):
 class EMSPoster(EMSGetter[_R]):
     def handler(self, session: Session, *args, **kwargs) -> _R:
         """获取学生信息"""
-        with self._get_session(session) as ems_session:
+        with self.get_session(session) as ems_session:
             logger.debug(f'[{self.__class__.__name__}] 正在获取数据-{self.url()}')
             resp = ems_session.post(url=self.url(), data=self._data(), timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
             soup = BeautifulSoup(resp.text, 'html.parser')
@@ -70,8 +80,7 @@ class EMSPoster(EMSGetter[_R]):
 
     async def async_handler(self, session: Session, *args, **kwargs) -> _R:
         """异步获取学生信息"""
-        from aiohttp import ClientSession
-        async with ClientSession(cookies={QZEducationalManageSystem.SESSION_NAME: session.session_id}) as ems_session:
+        async with self.get_async_session(session) as ems_session:
             logger.debug(f'[{self.__class__.__name__}] 正在异步获取数据-{self.url()}')
             resp = await ems_session.post(url=self.url(), data=self._data(),
                                           timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)

@@ -51,6 +51,7 @@ class UpdateTask:
             except Exception as e:
                 # 认为Session可能过期了
                 logger.info(f"Session {account.student_id} 的SESSION可能过期了，需要重新登陆")
+                logger.debug(str(e))
                 account.status = AccountStatus.EXPIRED
                 return None
             # 更新数据
