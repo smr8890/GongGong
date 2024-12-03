@@ -49,12 +49,12 @@ calendar_service = PublicInfoService(handler=TeachingCalendarGetter(),
                                      )
 
 today_classroom_service = PublicInfoService(handler=TodayClassroomStatusGetter(),
-                                            update_expire=timedelta(hours=12),
+                                            update_expire=timedelta(hours=1),
                                             submit_expire=timedelta(minutes=1),
                                             account_repository=account_repository
                                             )
 tomorrow_classroom_service = PublicInfoService(handler=TomorrowClassroomStatusGetter(),
-                                               update_expire=timedelta(hours=12),
+                                               update_expire=timedelta(hours=1),
                                                submit_expire=timedelta(minutes=1),
                                                account_repository=account_repository
                                                )

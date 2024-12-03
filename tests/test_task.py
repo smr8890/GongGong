@@ -12,10 +12,10 @@ class TestUpdateTask(IsolatedAsyncioTestCase):
     async def asyncSetUp(self):
         self.storage = SimpleKVRepository()
         accounts = {
+            'test_id2': Account(student_id='test_id2', password='test_password2', session='test_session2',
+                                status=AccountStatus.NORMAL),
             'test_id1': Account(student_id='test_id1', password='test_password1', session='test_session1',
                                 status=AccountStatus.UNDEFINED),
-            'test_id2': Account(student_id='test_id2', password='test_password2', session='test_session2',
-                                status=AccountStatus.NORMAL)
 
         }
         self.user_repository = SimpleKVRepository()

@@ -2,7 +2,7 @@ from unittest import TestCase
 from unittest.async_case import IsolatedAsyncioTestCase
 
 from common_data import session, username
-from xtu_ems.ems.config import RequestConfig
+from xtu_ems.ems.config import RequestConfig, XTUEMSConfig
 from xtu_ems.ems.handler.get_student_courses import StudentCourseGetter
 from xtu_ems.ems.model import InformationPackage
 
@@ -20,7 +20,7 @@ class TestStudentCourseGetter(TestCase):
         handler = StudentCourseGetter()
         url = handler.url()
         with handler.get_session(session) as ems_session:
-            resp = ems_session.post(url=url, data={"xnxq01id": "2022-2023-2"},
+            resp = ems_session.post(url=url, data={"xnxq01id": XTUEMSConfig.get_current_term()},
                                     timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
         import bs4
         li = handler._extra_info(bs4.BeautifulSoup(resp.text, "html.parser"))

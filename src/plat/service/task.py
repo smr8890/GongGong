@@ -38,8 +38,7 @@ class UpdateTask:
         """
         async for user_id in self.user_repository:
             account = await self.user_repository.async_get_item(user_id)
-            if account and await self.session_validator.async_handler(Session(session_id=account.session)):
-                return account
+            return account
 
     async def __call__(self, *args, **kwargs):
         # 获取Session，并且判断Session是否存在
@@ -50,8 +49,8 @@ class UpdateTask:
                 result = await self.handler.async_handler(Session(session_id=session))
             except Exception as e:
                 # 认为Session可能过期了
-                logger.info(f"Session {account.student_id} 的SESSION可能过期了，需要重新登陆")
-                logger.debug(str(e))
+                logger.info(f" {account.student_id} 的SESSION可能过期了，需要重新登陆")
+                logging.error("Exception occurred", exc_info=True)
                 account.status = AccountStatus.EXPIRED
                 return None
             # 更新数据
