@@ -24,6 +24,14 @@ def pre_proc(res: str):
     return res.replace('\n', '').replace('\r', '').replace(' ', '').replace('\t', '')
 
 
+def extract_field(text, start_key, end_key=None):
+    start = text.find(start_key) + len(start_key)
+    if end_key:
+        end = text.find(end_key, start)
+        return text[start:end].strip()
+    return text[start:].strip()
+
+
 class StudentTranscriptGetter(Handler[ScoreBoard]):
     """通过教务系统获取成绩单，并且解析成结构化数据"""
 
@@ -49,19 +57,17 @@ class StudentTranscriptGetter(Handler[ScoreBoard]):
 
     def _extra_info(self, pdf):
         page = pdf.pages[0]
-        directory = page.extract_text_lines()[1]['text'].split(' ')
+        text: str = page.extract_text_lines()[1]['text']
+
         scoreboard = ScoreBoard()
-        for i, piece in enumerate(directory):
-            k, v = [x.strip() for x in piece.split('：', 1)]
-            match k:
-                case '院系':
-                    scoreboard.college = v
-                case '专业':
-                    scoreboard.major = v
-                case '姓名':
-                    scoreboard.name = v
-                case '学号':
-                    scoreboard.student_id = v
+
+        scoreboard.college = extract_field(text, '院系：', '专业：')
+
+        scoreboard.major = extract_field(text, '专业：', '姓名：')
+
+        scoreboard.name = extract_field(text, '姓名：', '学号：')
+
+        scoreboard.student_id = extract_field(text, '学号：')
 
         table = page.extract_table()
 
