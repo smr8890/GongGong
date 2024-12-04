@@ -139,15 +139,8 @@ class AccountService:
     async def refresh_task(self):
         async for student_id in self.account_repository:
             account: Account = await self.account_repository.async_get_item(student_id)
-            validation = await self.session_validator.async_handler(Session(session_id=account.session))
-            if validation:
-                # 为验证通过， 认定失效账户
-                logger.debug(f'账户 {account.student_id} 已验证通过')
-            else:
-                # 为验证通过， 认定失效账户
-                logger.debug(f'账户 {account.student_id} 已失效')
-                await self.expire_account(account.student_id)
-            await asyncio.sleep(1)
+            await self.refresh_single_session(account)
+            await asyncio.sleep(.5)
 
     async def refresh_session(self, interval: int):
         """
@@ -158,3 +151,27 @@ class AccountService:
             logger.info('开始刷新session')
             asyncio.create_task(self.refresh_task())
             await asyncio.sleep(interval)
+
+    async def refresh_single_session(self, account: Account) -> bool:
+        """
+        刷新单个session
+        Args:
+            account: 账号信息
+
+        Returns:
+            bool: 是否刷新成功
+        """
+        try:
+            validation = await self.session_validator.async_handler(Session(session_id=account.session))
+        except TimeoutError as e:
+            logger.warning(f'账户 {account.student_id} 验证超时')
+            validation = False
+        if validation:
+            # 为验证通过， 认定失效账户
+            logger.debug(f'账户 {account.student_id} 已验证通过')
+            return True
+        else:
+            # 为验证通过， 认定失效账户
+            logger.debug(f'账户 {account.student_id} 已失效')
+            await self.expire_account(account.student_id)
+            return False
