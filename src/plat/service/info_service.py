@@ -40,6 +40,10 @@ class PersonalInfoService(IService[D]):
         return PersonalUpdateTask(key, self.handler, storage, self.account_repository)
 
     def get_refresher(self):
+        """
+        获取一个异步刷新器
+        """
+
         async def on_refresh(key: str, value: TaskEntity, repo: KVRepository[str, TaskEntity]):
             task = self.generate_task(key=key, storage=repo)
             if not value:

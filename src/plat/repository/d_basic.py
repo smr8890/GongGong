@@ -61,7 +61,9 @@ class SimpleKVRepository(KVRepository[_KEY, _VAL]):
         self.data[key] = value
 
     async def async_del_item(self, key: _KEY):
-        del self.data[key]
+        """异步删除键值"""
+        if key in self.data:
+            del self.data[key]
 
     def __aiter__(self):
         """Return an asynchronous iterator for the keys in the repository."""

@@ -60,7 +60,7 @@ class Account(BaseModel):
     last_login_time: datetime = datetime.now()
     """最后一次登陆时间"""
 
-    def __bool__(self):
+    def is_valid(self):
         """判断用户是否有效"""
         return self.status == AccountStatus.NORMAL
 

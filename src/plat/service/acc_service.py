@@ -50,29 +50,30 @@ class AccountService:
             password: 密码
 
         Returns:
-
+            登录成功的账户信息
         """
-        # 本地有账户， 直接通过对比本地账户验证登陆
-        authed_account = await self.account_repository.async_get_item(username)
-        if authed_account:
+        # 尝试从本地账户存储库中获取账户信息
+        authed_account: Account = await self.account_repository.async_get_item(username)
+        if authed_account and authed_account.is_valid():
+            # 若本地账户存在且有效，检查密码是否匹配
             if authed_account.password != password:
                 raise InvalidAccountException()
             return authed_account
-        # 本地无账户或者本地账户失效
+        # 若本地账户不存在或失效，使用 AuthenticationAccount 进行登录操作
         account = AuthenticationAccount(username=username, password=password)
         session = await self.ems.async_login(account)
         if authed_account:
-            # 本地有账户， 直接更新本地账户
+            # 若本地有账户，更新其信息
             authed_account.password = password
             authed_account.session = session.session_id
             authed_account.status = AccountStatus.NORMAL
-            authed_account = await self.save_new_account(authed_account)
-            return authed_account
-        # 本地没有账户， 直接登陆
-        authed_account = Account(student_id=username,
-                                 password=password,
-                                 session=session.session_id,
-                                 status=AccountStatus.NORMAL)
+        else:
+            # 若本地没有账户，创建新账户
+            authed_account = Account(student_id=username,
+                                     password=password,
+                                     session=session.session_id,
+                                     status=AccountStatus.NORMAL)
+        # 保存更新后的账户信息
         authed_account = await self.save_new_account(authed_account)
         return authed_account
 
@@ -86,6 +87,11 @@ class AccountService:
         Returns:
             用户信息
         """
+        # 将之前的token删除
+        old_token = account.token
+        if old_token:
+            await self.token_repository.async_del_item(old_token)
+        # 创建新的token，保证token的唯一性
         while await self.token_repository.async_get_item(account.token):
             account.refresh_token()
         await self.token_repository.async_set_item(account.token, account)
@@ -99,15 +105,15 @@ class AccountService:
             token: 用户凭证
 
         Returns:
-
+            验证通过的用户信息
         """
-        account = await self.token_repository.async_get_item(token)
-        if account is not None:
+        account: Account = await self.token_repository.async_get_item(token)
+        if account and account.token == token:
             if account.status == AccountStatus.EXPIRED:
                 raise ExpiredAccountException(account.student_id)
             elif account.status == AccountStatus.BANNED:
                 raise BannedAccountException(account.student_id)
-            else:
+            elif account.status == AccountStatus.NORMAL:
                 return account
         else:
             return None
@@ -120,9 +126,9 @@ class AccountService:
             username: 用户名
 
         Returns:
-
+            过期的用户信息
         """
-        account = await self.account_repository.async_get_item(username)
+        account: Account = await self.account_repository.async_get_item(username)
         if account:
             account.status = AccountStatus.EXPIRED
             await self.account_repository.async_set_item(username, account)
@@ -132,7 +138,7 @@ class AccountService:
 
     async def refresh_task(self):
         async for student_id in self.account_repository:
-            account = await self.account_repository.async_get_item(student_id)
+            account: Account = await self.account_repository.async_get_item(student_id)
             validation = await self.session_validator.async_handler(Session(session_id=account.session))
             if validation:
                 # 为验证通过， 认定失效账户

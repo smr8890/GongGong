@@ -4,6 +4,7 @@ import logging
 from abc import ABC, abstractmethod
 
 import requests
+from aiohttp import ClientSession
 
 from xtu_ems.ems.account import AuthenticationAccount
 from xtu_ems.ems.config import XTUEMSConfig, RequestConfig
@@ -52,8 +53,10 @@ class QZEducationalManageSystem(EducationalManageSystem):
     强智教务系统
     """
     SESSION_NAME = "JSESSIONID"
+    """Session名"""
 
     _HEADER = {'Content-Type': 'application/x-www-form-urlencoded'}
+    """公共头部"""
 
     def _data(self, username: str, password: str, encode: str, random_code: str):
         return {
@@ -91,7 +94,10 @@ class QZEducationalManageSystem(EducationalManageSystem):
 
         Returns:
             登陆后的session
-
+        Raises:
+            InvalidAccountException: 账号密码错误
+            InvalidCaptchaException: 多次验证码错误
+            UninitializedPasswordException: 未初始化密码
         """
         self.pre_check(account)
         err = None
@@ -128,6 +134,10 @@ class QZEducationalManageSystem(EducationalManageSystem):
             session: 登陆后的session
         Returns:
             处理后的响应
+        Raises:
+            InvalidAccountException: 账号密码错误
+            InvalidCaptchaException: 验证码错误
+            UninitializedPasswordException: 未初始化密码
         """
         if resp.status != 302:
             content = await resp.text()
@@ -150,6 +160,10 @@ class QZEducationalManageSystem(EducationalManageSystem):
             session: 登陆后的session
         Returns:
             处理后的响应
+        Raises:
+            InvalidAccountException: 账号密码错误
+            InvalidCaptchaException: 验证码错误
+            UninitializedPasswordException: 未初始化密码
         """
         if resp.status_code != 302:
             content = resp.text
@@ -173,7 +187,10 @@ class QZEducationalManageSystem(EducationalManageSystem):
 
         Returns:
             登陆后的session
-
+        Raises:
+            InvalidAccountException: 账号密码错误
+            InvalidCaptchaException: 多次尝试仍然验证码错误
+            UninitializedPasswordException: 未初始化密码
         """
         err = None
         self.pre_check(account)
@@ -203,7 +220,17 @@ class QZEducationalManageSystem(EducationalManageSystem):
         raise err
 
     async def _async_login(self, account: AuthenticationAccount) -> Session:
-        from aiohttp import ClientSession
+        """
+        异步登陆教务系统
+        Args:
+            account: 账户信息
+        Returns:
+            登陆后的session
+        Raises:
+            InvalidAccountException: 账号密码错误
+            InvalidCaptchaException: 多次验证码错误
+            UninitializedPasswordException: 未初始化密码
+        """
         async with ClientSession() as ems_session:
             resp = await ems_session.get(url=XTUEMSConfig.XTU_EMS_CAPTCHA_URL,
                                          timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
@@ -227,6 +254,19 @@ class QZEducationalManageSystem(EducationalManageSystem):
                 return await self.async_post_process(resp, session) or session
 
     def _login(self, account: AuthenticationAccount) -> Session:
+        """
+        登陆教务系统
+        Args:
+            account: 账户信息
+
+        Returns:
+            登陆后的session
+
+        Raises:
+            InvalidAccountException: 账号密码错误
+            InvalidCaptchaException: 多次验证码错误
+            UninitializedPasswordException: 未初始化密码
+        """
         with requests.session() as ems_session:
             resp = ems_session.get(url=XTUEMSConfig.XTU_EMS_CAPTCHA_URL,
                                    timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
