@@ -51,7 +51,7 @@ class Account(BaseModel):
     """学号"""
     password: str
     """密码"""
-    _token: str = str(uuid.uuid4())
+    _token: str = None
     """用户凭证"""
     session: str = None
     """用户Session"""
@@ -60,16 +60,18 @@ class Account(BaseModel):
     last_login_time: datetime = datetime.now()
     """最后一次登陆时间"""
 
+    @property
+    def token(self):
+        """生成用户凭证"""
+        if self._token is None:
+            self._token = str(uuid.uuid4())
+        return self._token
+
     def is_valid(self):
         """判断用户是否有效"""
         return self.status == AccountStatus.NORMAL
 
-    @property
-    def token(self):
-        """获取用户凭证"""
-        return self._token
-
     def refresh_token(self):
         """刷新用户凭证"""
         self._token = str(uuid.uuid4())
-        return self._token
+        return self.token

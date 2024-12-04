@@ -148,7 +148,7 @@ class QZEducationalManageSystem(EducationalManageSystem):
             raise Exception("登陆失败")
         else:
             location = resp.headers.get("location")
-            if location == XTUEMSConfig.XTU_EMS_UPDATE_PASSWORD_URL:
+            if location.endswith(XTUEMSConfig.XTU_EMS_UPDATE_PASSWORD_URL):
                 raise UninitializedPasswordException()
             return session
 
@@ -174,7 +174,7 @@ class QZEducationalManageSystem(EducationalManageSystem):
             raise Exception("登陆失败")
         else:
             location = resp.headers.get("location")
-            if location == XTUEMSConfig.XTU_EMS_UPDATE_PASSWORD_URL:
+            if location.endswith(XTUEMSConfig.XTU_EMS_UPDATE_PASSWORD_URL):
                 raise UninitializedPasswordException()
             return session
 
