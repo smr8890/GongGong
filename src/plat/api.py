@@ -6,7 +6,7 @@ from plat.service import account_service, course_service, info_service, score_se
 from plat.service.acc_service import ExpiredAccountException, BannedAccountException
 from plat.service.entity import Account
 from plat.service.info_service import IService
-from xtu_ems.ems.ems import InvalidAccountException, InvalidCaptchaException
+from xtu_ems.ems.ems import InvalidAccountException, InvalidCaptchaException, UninitializedPasswordException
 
 app = APIRouter()
 
@@ -58,6 +58,8 @@ async def login(username: str = Body(description="学号"), password: str = Body
         return fail(message=f"账户密码错误")
     except InvalidCaptchaException as e:
         return fail(message=f"系统繁忙，请稍后重试")
+    except UninitializedPasswordException as e:
+        return fail(message=f"账户需要修改密码")
     except TimeoutError as e:
         return fail(message=f'服务器超时，请稍后')
 

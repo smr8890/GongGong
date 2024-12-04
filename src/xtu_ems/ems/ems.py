@@ -38,6 +38,15 @@ class InvalidCaptchaException(Exception):
         super().__init__(self.message)
 
 
+# 未初始化密码
+class UninitializedPasswordException(Exception):
+    """未初始化密码异常"""
+
+    def __init__(self, message="未初始化密码"):
+        self.message = message
+        super().__init__(self.message)
+
+
 class QZEducationalManageSystem(EducationalManageSystem):
     """
     强智教务系统
@@ -101,11 +110,59 @@ class QZEducationalManageSystem(EducationalManageSystem):
                 err = e
                 logger.debug(f'正在重试{i}/{retry_time}次登陆失败-验证码错误')
                 continue
+            except UninitializedPasswordException as e:
+                err = e
+                logger.debug(f'[{account.username}]-未初始化密码')
+                break
             except TimeoutError as e:
                 err = e
                 logger.debug(f'正在重试{i}/{retry_time}次登陆失败-网络超时')
                 continue
         raise err
+
+    async def async_post_process(self, resp, session):
+        """
+        处理登陆后的响应
+        Args:
+            resp: 登陆后的响应
+            session: 登陆后的session
+        Returns:
+            处理后的响应
+        """
+        if resp.status != 302:
+            content = await resp.text()
+            if "用户名或密码错误,请联系本院教务老师!" in content:
+                raise InvalidAccountException()
+            if "验证码错误!!" in content:
+                raise InvalidCaptchaException()
+            raise Exception("登陆失败")
+        else:
+            location = resp.headers.get("location")
+            if location == XTUEMSConfig.XTU_EMS_UPDATE_PASSWORD_URL:
+                raise UninitializedPasswordException()
+            return session
+
+    def post_process(self, resp, session):
+        """
+        处理登陆后的响应
+        Args:
+            resp: 登陆后的响应
+            session: 登陆后的session
+        Returns:
+            处理后的响应
+        """
+        if resp.status_code != 302:
+            content = resp.text
+            if "用户名或密码错误,请联系本院教务老师!" in content:
+                raise InvalidAccountException()
+            if "验证码错误!!" in content:
+                raise InvalidCaptchaException()
+            raise Exception("登陆失败")
+        else:
+            location = resp.headers.get("location")
+            if location == XTUEMSConfig.XTU_EMS_UPDATE_PASSWORD_URL:
+                raise UninitializedPasswordException()
+            return session
 
     async def async_login(self, account: AuthenticationAccount, retry_time=3) -> Session:
         """
@@ -135,6 +192,10 @@ class QZEducationalManageSystem(EducationalManageSystem):
                 err = e
                 logger.debug(f'正在重试{i}/{retry_time}次登陆失败-验证码错误')
                 continue
+            except UninitializedPasswordException as e:
+                err = e
+                logger.debug(f'[{account.username}]-未初始化密码')
+                break
             except TimeoutError as e:
                 err = e
                 logger.debug(f'正在重试{i}/{retry_time}次登陆失败-网络超时')
@@ -163,14 +224,7 @@ class QZEducationalManageSystem(EducationalManageSystem):
                                         headers=QZEducationalManageSystem._HEADER,
                                         allow_redirects=False,
                                         timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT) as resp:
-                if resp.status != 302:
-                    content = await resp.text()
-                    if "用户名或密码错误,请联系本院教务老师!" in content:
-                        raise InvalidAccountException()
-                    if "验证码错误!!" in content:
-                        raise InvalidCaptchaException()
-                    raise Exception("登陆失败")
-        return session
+                return await self.async_post_process(resp, session) or session
 
     def _login(self, account: AuthenticationAccount) -> Session:
         with requests.session() as ems_session:
@@ -193,14 +247,8 @@ class QZEducationalManageSystem(EducationalManageSystem):
                                     headers=QZEducationalManageSystem._HEADER,
                                     allow_redirects=False,
                                     timeout=RequestConfig.XTU_EMS_REQUEST_TIMEOUT)
-            if resp.status_code != 302:
-                content = resp.text
-                if "用户名或密码错误,请联系本院教务老师!" in content:
-                    raise InvalidAccountException()
-                if "验证码错误!!" in content:
-                    raise InvalidCaptchaException()
-                raise Exception("登陆失败")
-        return session
+
+            return self.post_process(resp, session) or session
 
     def _signature(self, username: str, password: str, signature: str):
         """

@@ -4,9 +4,6 @@ from enum import Enum
 
 from pydantic import BaseModel
 
-from xtu_ems.ems.account import AuthenticationAccount
-from xtu_ems.ems.ems import QZEducationalManageSystem
-
 
 class TimedEntity:
     """时间类型的实体类"""
@@ -62,21 +59,6 @@ class Account(BaseModel):
     """账户状态"""
     last_login_time: datetime = datetime.now()
     """最后一次登陆时间"""
-    last_use_time: datetime = datetime.now()
-    """最后一次使用时间"""
-
-    async def login(self):
-        """登陆教务系统并且获取Session"""
-        ems = QZEducationalManageSystem()
-        account = AuthenticationAccount(username=self.student_id, password=self.password)
-        try:
-            self.session = (await ems.async_login(account)).session_id
-            self.status = AccountStatus.NORMAL
-            self.last_login_time = datetime.now()
-        except Exception as e:
-            self.status = AccountStatus.INVALID
-            self.last_login_time = datetime.now()
-            raise e
 
     def __bool__(self):
         """判断用户是否有效"""
@@ -85,11 +67,9 @@ class Account(BaseModel):
     @property
     def token(self):
         """获取用户凭证"""
-        self.last_use_time = datetime.now()
         return self._token
 
     def refresh_token(self):
         """刷新用户凭证"""
         self._token = str(uuid.uuid4())
-        self.last_use_time = datetime.now()
         return self._token

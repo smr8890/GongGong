@@ -88,6 +88,8 @@ class XTUEMSConfiguration(BaseSettings):
 
     XTU_EMS_SESSION_VALIDATOR_TITLE: str = "湘潭大学综合教务管理系统-湘潭大学"
 
+    XTU_EMS_UPDATE_PASSWORD_URL: str = XTU_EMS_BASE_URL + "/grsz/grsz_xgmm_beg.do"
+
     @staticmethod
     def get_current_term():
         """获取当前学期"""
