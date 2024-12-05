@@ -183,7 +183,7 @@ class StudentRankGetter(EMSPoster[RankInfo]):
         }
 
     def url(self):
-        return 'https://jwxt.xtu.edu.cn/jsxsd/kscj/cjjd_list'
+        return XTUEMSConfig.XTU_EMS_STUDENT_RANK_URL
 
     def _extra_info(self, soup: BeautifulSoup):
         trs = soup.find_all('tr')
@@ -207,3 +207,16 @@ class StudentRankGetter(EMSPoster[RankInfo]):
             major_rank=int(d['school_rank']),
             terms=self._terms or ['*']
         )
+
+
+class StudentRankGetterForCompulsory(StudentRankGetter):
+    """
+    获取学生排名，仅获取必修课
+    """
+
+    def _data(self):
+        return {
+            'kksj': self.terms,
+            'kclb': [1],
+            'zsb': 0
+        }

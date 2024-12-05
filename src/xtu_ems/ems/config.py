@@ -68,6 +68,8 @@ class XTUEMSConfiguration(BaseSettings):
     XTU_EMS_STUDENT_TRANSCRIPT_URL: str = XTU_EMS_BASE_URL + "/kscj/cjdy_dc"
     """湘潭大学教务系统-学生成绩单地址"""
 
+    XTU_EMS_STUDENT_RANK_URL: str = XTU_EMS_BASE_URL + "/kscj/cjjd_list"
+
     XTU_EMS_STUDENT_EXAM_URL: str = XTU_EMS_BASE_URL + "/xsks/xsksap_list"
     """湘潭大学教务系统-学生考试安排地址"""
 
