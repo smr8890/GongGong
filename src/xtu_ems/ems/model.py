@@ -1,7 +1,7 @@
 """校务系统信息"""
 from dataclasses import field
 from datetime import datetime, date as ddate
-from typing import Tuple, Literal, TypeVar, Generic
+from typing import Tuple, Literal, TypeVar, Generic, Union
 
 from pydantic import BaseModel
 
@@ -179,9 +179,9 @@ class ExamInfo(BaseModel):
 
     name: str = ""
     """考试名称"""
-    start_time: datetime | str = ''
+    start_time: Union[datetime, str] = ''
     """开始时间"""
-    end_time: datetime | str = ''
+    end_time: Union[datetime, str] = ''
     """结束时间"""
     location: str = ''
     """考试地点"""

@@ -1,7 +1,7 @@
 import asyncio
 from abc import abstractmethod
 from datetime import timedelta
-from typing import TypeVar, Generic
+from typing import TypeVar, Generic, Optional
 
 from plat.repository.d_basic import KVRepository, SimpleKVRepository
 from plat.repository.d_cache import CacheRepository
@@ -15,14 +15,14 @@ D = TypeVar('D')
 
 class IService(Generic[D]):
     @abstractmethod
-    async def get_info(self, student_id: str) -> D | None:
+    async def get_info(self, student_id: str) -> Optional[D]:
         pass
 
 
 class PersonalInfoService(IService[D]):
     """个人信息服务"""
 
-    async def get_info(self, key: str) -> D | None:
+    async def get_info(self, key: str) -> Optional[D]:
         task: TaskEntity = await self.storage.async_get_item(key)
         return task.data
 
@@ -81,11 +81,11 @@ class PersonalInfoService(IService[D]):
 class PublicInfoService(PersonalInfoService[D]):
     """公共信息服务"""
 
-    async def get_info(self, student_id: str = None) -> D | None:
+    async def get_info(self, student_id: str = None) -> Optional[D]:
         task: TaskEntity = await self.storage.async_get_item(self.name)
         return task.data
 
-    async def get_public_info(self) -> D | None:
+    async def get_public_info(self) -> Optional[D]:
         return await self.get_info()
 
     def generate_task(self, key: str,
