@@ -60,6 +60,17 @@ class CourseInfo(BaseModel):
     """星期"""
 
 
+def _get_day_no(weekday: str):
+    """
+    获取星期几的课程表
+    Args:
+        weekday: 星期几
+    Returns:
+        返回星期几的课程表
+    """
+    return ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].index(weekday)
+
+
 def _get_day_name(day: int):
     """
     获取星期几的课程表
@@ -69,14 +80,7 @@ def _get_day_name(day: int):
     Returns:
         返回星期几的课程表
     """
-    return [
-        'Monday',
-        'Tuesday',
-        'Wednesday',
-        'Thursday',
-        'Friday',
-        'Saturday',
-        'Sunday'][day]
+    return ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'][day]
 
 
 class CourseList(BaseModel):

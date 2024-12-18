@@ -87,7 +87,7 @@ class BaseRepeatRule(Component):
         # Add UNTIL if specified
         if self.until:
             if isinstance(self.until, datetime.datetime):
-                until_str = self.until.strftime("%Y%m%dT%H%M%S")
+                until_str = self.until.strftime("%Y%m%dT%H%M%SZ")
             elif isinstance(self.until, datetime.date):
                 until_str = self.until.strftime("%Y%m%d")
             else:
@@ -144,7 +144,7 @@ class BaseEvent(Component):
                 lines.append(f"DTSTART;VALUE=DATE:{self.start_time.strftime('%Y%m%d')}")
             else:
                 # Date-time event
-                lines.append(f"DTSTART:{self.start_time.strftime('%Y%m%dT%H%M%S')}")
+                lines.append(f"DTSTART:{self.start_time.strftime('%Y%m%dT%H%M%SZ')}")
 
         # DTEND
         if self.end_time:
@@ -153,7 +153,7 @@ class BaseEvent(Component):
                 lines.append(f"DTEND;VALUE=DATE:{self.end_time.strftime('%Y%m%d')}")
             else:
                 # Date-time event
-                lines.append(f"DTEND:{self.end_time.strftime('%Y%m%dT%H%M%S')}")
+                lines.append(f"DTEND:{self.end_time.strftime('%Y%m%dT%H%M%SZ')}")
 
         # CATEGORIES
         if self.category:
