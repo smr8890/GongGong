@@ -26,5 +26,5 @@ class TestCourseIcalendarUtil(TestCase):
         for event in events:
             calendar.add_event(event)
         ics = calendar.to_ical()
-        self.assertIsNotNone(ics)
         print(ics)
+        self.assertIsNotNone(ics)

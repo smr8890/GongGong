@@ -2,10 +2,10 @@ from bs4 import BeautifulSoup, Tag
 
 from xtu_ems.ems.config import XTUEMSConfig
 from xtu_ems.ems.handler import EMSPoster
-from xtu_ems.ems.model import CourseInfo, CourseTable, _get_day_name
+from xtu_ems.ems.model import CourseInfo, CourseTable, _get_day_name, CourseList
 
 
-class StudentCourseGetter(EMSPoster[CourseTable]):
+class StudentCourseGetter(EMSPoster[CourseList]):
 
     def _data(self):
         return {'xnxq01id': XTUEMSConfig.get_current_term()}

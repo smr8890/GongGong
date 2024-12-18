@@ -87,7 +87,7 @@ class BaseRepeatRule(Component):
         # Add UNTIL if specified
         if self.until:
             if isinstance(self.until, datetime.datetime):
-                until_str = self.until.strftime("%Y%m%dT%H%M%SZ")
+                until_str = self.until.strftime("%Y%m%dT%H%M%S")
             elif isinstance(self.until, datetime.date):
                 until_str = self.until.strftime("%Y%m%d")
             else:
@@ -123,7 +123,7 @@ class BaseEvent(Component):
 
     def to_ical(self) -> str:
         """转化成ics格式中的事件"""
-        lines = ["BEGIN:VEVENT", f"DTSTAMP:{self.dtstamp.strftime('%Y%m%dT%H%M%SZ')}"]
+        lines = ["BEGIN:VEVENT", f"DTSTAMP:{self.dtstamp.strftime('%Y%m%dT%H%M%S')}"]
 
         # SUMMARY
         if self.summary:
@@ -144,7 +144,7 @@ class BaseEvent(Component):
                 lines.append(f"DTSTART;VALUE=DATE:{self.start_time.strftime('%Y%m%d')}")
             else:
                 # Date-time event
-                lines.append(f"DTSTART:{self.start_time.strftime('%Y%m%dT%H%M%SZ')}")
+                lines.append(f"DTSTART:{self.start_time.strftime('%Y%m%dT%H%M%S')}")
 
         # DTEND
         if self.end_time:
@@ -153,7 +153,7 @@ class BaseEvent(Component):
                 lines.append(f"DTEND;VALUE=DATE:{self.end_time.strftime('%Y%m%d')}")
             else:
                 # Date-time event
-                lines.append(f"DTEND:{self.end_time.strftime('%Y%m%dT%H%M%SZ')}")
+                lines.append(f"DTEND:{self.end_time.strftime('%Y%m%dT%H%M%S')}")
 
         # CATEGORIES
         if self.category:

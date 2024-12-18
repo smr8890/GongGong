@@ -71,6 +71,13 @@ class CourseIcalendarUtil:
             later = self.WINTER_SAVING_TIME
         return sep_week, former, later
 
+    def convert_courses_to_events(self, courses: list[CourseInfo], base_date: ddate) -> list[BaseEvent]:
+        """将课程转换为事件"""
+        events = []
+        for course in courses:
+            events.extend(self.convert_course_to_event(course, base_date))
+        return events
+
     def convert_course_to_event(self, course: CourseInfo, base_date: ddate) -> list[BaseEvent]:
         """将课程转换为事件"""
         # e = BaseEvent(summary=course.name,
