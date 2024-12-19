@@ -123,7 +123,7 @@ class BaseEvent(Component):
 
     def to_ical(self) -> str:
         """转化成ics格式中的事件"""
-        lines = ["BEGIN:VEVENT", f"DTSTAMP:{self.dtstamp.strftime('%Y%m%dT%H%M%S')}"]
+        lines = ["BEGIN:VEVENT", f"DTSTAMP;TZID=Asia/Shanghai:{self.dtstamp.strftime('%Y%m%dT%H%M%S')}"]
 
         # SUMMARY
         if self.summary:
@@ -144,7 +144,7 @@ class BaseEvent(Component):
                 lines.append(f"DTSTART;VALUE=DATE:{self.start_time.strftime('%Y%m%d')}")
             else:
                 # Date-time event
-                lines.append(f"DTSTART:{self.start_time.strftime('%Y%m%dT%H%M%S')}")
+                lines.append(f"DTSTART;TZID=Asia/Shanghai:{self.start_time.strftime('%Y%m%dT%H%M%S')}")
 
         # DTEND
         if self.end_time:
@@ -153,7 +153,7 @@ class BaseEvent(Component):
                 lines.append(f"DTEND;VALUE=DATE:{self.end_time.strftime('%Y%m%d')}")
             else:
                 # Date-time event
-                lines.append(f"DTEND:{self.end_time.strftime('%Y%m%dT%H%M%S')}")
+                lines.append(f"DTEND;TZID=Asia/Shanghai:{self.end_time.strftime('%Y%m%dT%H%M%S')}")
 
         # CATEGORIES
         if self.category:

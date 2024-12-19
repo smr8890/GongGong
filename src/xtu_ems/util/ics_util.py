@@ -20,9 +20,9 @@ class CourseIcalendarUtil:
             for start, end in CourseIcalendarUtil.WINTER_SAVING_TIME]
 
     def __init__(self):
-        if not self._initialized:
-            self.initialize()
-            self._initialized = True
+        if not CourseIcalendarUtil._initialized:
+            CourseIcalendarUtil._initialized = True
+            CourseIcalendarUtil.initialize()
 
     SUMMER_SAVING_TIME = [("8:00", "8:45"),
                           ("8:55", "9:40"),
@@ -61,12 +61,12 @@ class CourseIcalendarUtil:
             切换冬夏令时的周次，，前半学期的时间表，后半学期的时间表
         """
         if base_date.month < 5:
-            sep_week = (ddate(base_date.year, month=5, day=1) - base_date).days // 7
+            sep_week = (ddate(base_date.year, month=5, day=1) - base_date).days // 7 + 1
             """切换冬夏令时的周次"""
             former = self.WINTER_SAVING_TIME
             later = self.SUMMER_SAVING_TIME
         else:
-            sep_week = (ddate(base_date.year, month=10, day=1) - base_date).days // 7
+            sep_week = (ddate(base_date.year, month=10, day=1) - base_date).days // 7 + 1
             former = self.SUMMER_SAVING_TIME
             later = self.WINTER_SAVING_TIME
         return sep_week, former, later
@@ -94,6 +94,9 @@ class CourseIcalendarUtil:
             start = int(start)
             end = int(end)
             """星期，Monday = 0"""
+            if end < sep_week:
+                # 前半学期
+                events.append(self.convert_single_course(course, base_date, start, end, former))
             if start <= sep_week < end:
                 # 横跨一个变换周次，需切分成两个事件处理
                 former_events = self.convert_single_course(course, base_date, start, sep_week, former)
