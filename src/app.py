@@ -1,6 +1,7 @@
 import os
 
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
 
 from plat.api import app
 from plat.backgroud_task import session_refresher_in_background
@@ -14,6 +15,7 @@ if env == 'prod':
 else:
     fastapi_app = FastAPI(lifespan=session_refresher_in_background)
 fastapi_app.include_router(app)
+fastapi_app.mount('/icalendar', StaticFiles(directory='static'), name="icalendar")
 
 if __name__ == '__main__':
     import uvicorn

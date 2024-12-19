@@ -10,12 +10,16 @@ class ExamIcalendarUtil:
     """考试日历工具"""
     DEFAULT_ALARM = [BaseAlarm(trigger=timedelta(days=-7), description="考试提醒，距离考试只有7天了！"),
                      BaseAlarm(trigger=timedelta(days=-3), description="考试提醒，距离考试只有3天了！"),
-                     BaseAlarm(trigger=timedelta(hours=-1), description="考试提醒，距离考试只有1小时了！")
+                     BaseAlarm(trigger=timedelta(days=-1), description="考试提醒，距离考试只有1小时了！")
                      ]
 
     def convert_exams_to_events(self, exam_list: ExamInfoList) -> list[BaseEvent]:
         """将考试转换为事件"""
-        return [self.convert_exam_to_event(exam) for exam in exam_list.exams]
+        events = []
+        for exam in exam_list.exams:
+            if exam.start_time:
+                events.append(self.convert_exam_to_event(exam))
+        return events
 
     def convert_exam_to_event(self, exam: ExamInfo) -> BaseEvent:
         """将考试转换为事件"""
@@ -71,7 +75,7 @@ class CourseIcalendarUtil:
                           ("20:50", "21:35")]
     """冬令时"""
 
-    DEFAULT_ALARM = BaseAlarm(trigger=timedelta(minutes=-10), description="课程提醒")
+    DEFAULT_ALARM = BaseAlarm(trigger=timedelta(minutes=-25), description="课程提醒")
 
     def get_time_table(self, base_date) -> Tuple[int, list, list]:
         """
@@ -102,9 +106,6 @@ class CourseIcalendarUtil:
 
     def convert_course_to_event(self, course: CourseInfo, base_date: ddate) -> list[BaseEvent]:
         """将课程转换为事件"""
-        # e = BaseEvent(summary=course.name,
-        #               location=course.classroom,
-        #               description=f"【{course.teacher}】 {course.duration}节课程")
         events = []
         sep_week, former, later = self.get_time_table(base_date)
         weeks = course.weeks.split(',')
@@ -116,10 +117,10 @@ class CourseIcalendarUtil:
             start = int(start)
             end = int(end)
             """星期，Monday = 0"""
-            if end < sep_week:
+            if end <= sep_week:
                 # 前半学期
                 events.append(self.convert_single_course(course, base_date, start, end, former))
-            if start <= sep_week < end:
+            elif start <= sep_week < end:
                 # 横跨一个变换周次，需切分成两个事件处理
                 former_events = self.convert_single_course(course, base_date, start, sep_week, former)
                 later_events = self.convert_single_course(course, base_date, sep_week + 1, end, later)
