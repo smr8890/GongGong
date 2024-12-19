@@ -155,7 +155,7 @@ async def get_courses_ics(token: str = Param(description="用户凭证")):
     events = ics_utils["Course"].convert_courses_to_events(courses.courses, base_date)
     calendar = BaseCalendar()
     calendar.events = events
-    ics = calendar.to_ical()
+    ics = calendar.to_ical().replace('\n', '\r\n')
     return Response(
         content=ics,
         media_type="text/calendar",

@@ -189,13 +189,25 @@ class BaseCalendar:
     """事件列表， EVENTS"""
     prodid: str = "-//Sky31//Gong 3.0//CN"
 
+    timezone = """\
+BEGIN:VTIMEZONE
+TZID:Asia/Shanghai
+X-LIC-LOCATION:Asia/Shanghai
+BEGIN:STANDARD
+TZOFFSETFROM:+0800
+TZOFFSETTO:+0800
+TZNAME:CST
+DTSTART:19700101T000000
+END:STANDARD
+END:VTIMEZONE"""
+
     def add_event(self, event: BaseEvent):
         """添加事件"""
         self.events.append(event)
 
     def to_ical(self) -> str:
         """转化成ics格式中的日历"""
-        lines = ["BEGIN:VCALENDAR", "VERSION:2.0", f"PRODID:{self.prodid}"]
+        lines = ["BEGIN:VCALENDAR", "VERSION:2.0", f"PRODID:{self.prodid}", self.timezone]
         # Add events
         [lines.append(e.to_ical()) for e in self.events]
 
