@@ -5,6 +5,8 @@ services:
     ports:
       - "8000:8000"
     volumes:
+      - /etc/localtime:/etc/localtime:ro  # 设置时区
+      - /etc/timezone:/etc/timezone:ro # 设置时区
       - ./api-logs:/logs
   #  反馈服务
   feedback:
