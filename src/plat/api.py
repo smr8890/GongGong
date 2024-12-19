@@ -1,4 +1,6 @@
 from fastapi import APIRouter, Body, Header
+from fastapi import Response
+from fastapi.params import Param
 from pydantic import BaseModel
 
 from plat.service import account_service, course_service, info_service, score_service, exam_service, rank_service, \
@@ -7,18 +9,25 @@ from plat.service.acc_service import ExpiredAccountException, BannedAccountExcep
 from plat.service.entity import Account
 from plat.service.info_service import IService
 from xtu_ems.ems.ems import InvalidAccountException, InvalidCaptchaException, UninitializedPasswordException
+from xtu_ems.ems.model import TeachingCalendar, CourseList, ExamInfoList
+from xtu_ems.util.icalendar import BaseCalendar
+from xtu_ems.util.ics_util import CourseIcalendarUtil, ExamIcalendarUtil
 
 app = APIRouter()
+ics_utils = {
+    "Course": CourseIcalendarUtil(),
+    "Exam": ExamIcalendarUtil()
+}
 
 
-class Response(BaseModel):
+class CommonResponse(BaseModel):
     code: int
     message: str
     data: object
 
 
 def success(data=None, message='success'):
-    return Response(
+    return CommonResponse(
         code=1,
         message=message,
         data=data
@@ -26,7 +35,7 @@ def success(data=None, message='success'):
 
 
 def fail(data=None, message='fail'):
-    return Response(
+    return CommonResponse(
         code=0,
         message=message,
         data=data
@@ -34,7 +43,7 @@ def fail(data=None, message='fail'):
 
 
 def invalid_authority():
-    return Response(
+    return CommonResponse(
         code=-1,
         message='无效的权限',
         data=None
@@ -125,3 +134,45 @@ async def get_tomorrow_classroom(token: str = Header(description="用户凭证")
 async def get_calendar(token: str = Header(description="用户凭证")):
     """获取校历"""
     return await do_gets(calendar_service, token)
+
+
+@app.get("/courses.ics")
+async def get_courses_ics(token: str = Param(description="用户凭证")):
+    """获取课表ics"""
+    teaching_calendar = (await do_gets(calendar_service, token)).data
+    if not teaching_calendar or not isinstance(teaching_calendar, TeachingCalendar):
+        return fail(message="获取校历失败")
+    base_date = teaching_calendar.start
+    courses = (await do_gets(course_service, token)).data
+    if not courses or not isinstance(courses, CourseList):
+        return fail(message="获取课表失败")
+    events = ics_utils["Course"].convert_courses_to_events(courses.courses, base_date)
+    calendar = BaseCalendar()
+    calendar.events = events
+    ics = calendar.to_ical()
+    return Response(
+        content=ics,
+        media_type="text/calendar",
+        headers={
+            "Content-Disposition": "attachment; filename=courses.ics"
+        }
+    )
+
+
+@app.get("/exams.ics")
+async def get_exams_ics(token: str = Param(description="用户凭证")):
+    """获取考试ics"""
+    exams = (await do_gets(exam_service, token)).data
+    if not exams or not isinstance(exams, ExamInfoList):
+        return fail(message="获取考试失败")
+    events = ics_utils["Exam"].convert_exams_to_events(exams)
+    calendar = BaseCalendar()
+    calendar.events = events
+    ics = calendar.to_ical()
+    return Response(
+        content=ics,
+        media_type="text/calendar",
+        headers={
+            "Content-Disposition": "attachment; filename=exams.ics"
+        }
+    )
