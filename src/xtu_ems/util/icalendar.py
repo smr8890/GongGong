@@ -118,7 +118,7 @@ class BaseEvent(Component):
     dtstamp: datetime.datetime = datetime.datetime.now()
     """创建时间， DTSTAMP"""
 
-    alarm: Union[BaseAlarm, str] = ""
+    alarm: Union[BaseAlarm, list[BaseAlarm]] = ""
     """提醒， ALARM"""
 
     def to_ical(self) -> str:
@@ -171,7 +171,8 @@ class BaseEvent(Component):
             if isinstance(self.alarm, BaseAlarm):
                 lines.append(f"{self.alarm.to_ical()}")
             else:
-                lines.append(f"{self.alarm}")
+                for alarm in self.alarm:
+                    lines.append(f"{alarm.to_ical()}")
 
         # Add unique identifier and timestamp
         hash_value = hashlib.md5((self.summary + self.start_time.__str__()).encode()).hexdigest()

@@ -2,8 +2,30 @@ import time
 from datetime import date as ddate, timedelta, datetime
 from typing import Tuple
 
-from xtu_ems.ems.model import CourseInfo, _get_day_no
+from xtu_ems.ems.model import CourseInfo, _get_day_no, ExamInfoList, ExamInfo
 from xtu_ems.util.icalendar import BaseEvent, BaseRepeatRule, BaseAlarm
+
+
+class ExamIcalendarUtil:
+    """考试日历工具"""
+    DEFAULT_ALARM = [BaseAlarm(trigger=timedelta(days=-7), description="考试提醒"),
+                     BaseAlarm(trigger=timedelta(days=-3), description="考试提醒"),
+                     BaseAlarm(trigger=timedelta(hours=-1), description="考试提醒")
+                     ]
+
+    def convert_exams_to_events(self, exam_list: ExamInfoList) -> list[BaseEvent]:
+        """将考试转换为事件"""
+        return [self.convert_exam_to_event(exam) for exam in exam_list.exams]
+
+    def convert_exam_to_event(self, exam: ExamInfo) -> BaseEvent:
+        """将考试转换为事件"""
+        e = BaseEvent(summary=exam.name,
+                      location=exam.location,
+                      start_time=exam.start_time,
+                      end_time=exam.end_time,
+                      description=f"【{exam.name}】{exam.location}",
+                      alarm=self.DEFAULT_ALARM)
+        return e
 
 
 class CourseIcalendarUtil:
