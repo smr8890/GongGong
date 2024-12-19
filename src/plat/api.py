@@ -4,7 +4,7 @@ from fastapi.params import Param
 from pydantic import BaseModel
 
 from plat.service import account_service, course_service, info_service, score_service, exam_service, rank_service, \
-    today_classroom_service, tomorrow_classroom_service, calendar_service
+    today_classroom_service, tomorrow_classroom_service, calendar_service, minor_score_service
 from plat.service.acc_service import ExpiredAccountException, BannedAccountException
 from plat.service.entity import Account
 from plat.service.info_service import IService
@@ -103,6 +103,12 @@ async def get_info(token: str = Header(description="用户凭证")):
 async def get_score(token: str = Header(description="用户凭证")):
     """获取成绩"""
     return await do_gets(score_service, token)
+
+
+@app.get("/minor/scores")
+async def get_score_by_term(token: str = Header(description="用户凭证")):
+    """获取指定学期成绩"""
+    return await do_gets(minor_score_service, token)
 
 
 @app.get("/exams")
