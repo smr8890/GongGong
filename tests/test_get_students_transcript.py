@@ -61,3 +61,13 @@ class AsyncTestStudentRankGetterForCompulsory(IsolatedAsyncioTestCase):
         handler = StudentRankGetterForCompulsory()
         resp = await handler.async_handler(session)
         print(resp.model_dump_json(indent=4))
+
+
+class TestStudentTranscriptGetterForAcademicMinor(TestCase):
+    def test_handler(self):
+        """测试获取辅修成绩单"""
+        from xtu_ems.ems.handler.get_students_transcript import StudentTranscriptGetterForAcademicMinor
+        handler = StudentTranscriptGetterForAcademicMinor()
+        resp = handler.handler(session)
+        print(resp.model_dump_json(indent=4))
+        self.assertIsNotNone(resp)

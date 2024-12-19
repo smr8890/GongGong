@@ -140,6 +140,10 @@ class StudentTranscriptGetter(Handler[ScoreBoard]):
                     scoreboard.cet4 = v
                 case 'CET6':
                     scoreboard.cet6 = v
+                case '辅修专业学士学位学分要求':
+                    _, h = scoreboard.total_credit
+                    scoreboard.total_credit = (v, h)
+
 
 
 @cache
@@ -220,3 +224,18 @@ class StudentRankGetterForCompulsory(StudentRankGetter):
             'kclb': [1],
             'zsb': 0
         }
+
+
+class StudentTranscriptGetterForAcademicMinor(StudentTranscriptGetter):
+    """
+    获取学生成绩单，仅获取必修课
+    """
+
+    def _data(self):
+        return {
+            'sjlj': ['110', '120'],
+            'sjcj': '2',
+            'bblx': 'all'}
+
+    def url(self):
+        return XTUEMSConfig.XTU_EMS_STUDENT_TRANSCRIPT_MINOR_URL
