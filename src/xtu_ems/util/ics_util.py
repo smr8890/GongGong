@@ -10,7 +10,8 @@ class ExamIcalendarUtil:
     """考试日历工具"""
     DEFAULT_ALARM = [BaseAlarm(trigger=timedelta(days=-7), description="考试提醒，距离考试只有7天了！"),
                      BaseAlarm(trigger=timedelta(days=-3), description="考试提醒，距离考试只有3天了！"),
-                     BaseAlarm(trigger=timedelta(hours=-1), description="考试提醒，距离考试只有1小时了！")
+                     BaseAlarm(trigger=timedelta(days=-1), description="考试提醒，距离考试只有1天了！"),
+                     BaseAlarm(trigger=timedelta(minutes=-30), description="考试提醒，距离考试只有30分钟了！")
                      ]
 
     def convert_exams_to_events(self, exam_list: ExamInfoList) -> list[BaseEvent]:
@@ -27,7 +28,7 @@ class ExamIcalendarUtil:
                       location=exam.location,
                       start_time=exam.start_time,
                       end_time=exam.end_time,
-                      description=f"【{exam.name}】 {exam.location}  ——《拱拱》",
+                      description=f"【{exam.name}】 {exam.location}",
                       alarm=self.DEFAULT_ALARM)
         return e
 
@@ -75,7 +76,7 @@ class CourseIcalendarUtil:
                           ("20:50", "21:35")]
     """冬令时"""
 
-    DEFAULT_ALARM = BaseAlarm(trigger=timedelta(minutes=-25), description="课程提醒")
+    DEFAULT_ALARM = BaseAlarm(trigger=timedelta(minutes=-30), description="课程提醒")
 
     def get_time_table(self, base_date) -> Tuple[int, list, list]:
         """
@@ -138,9 +139,9 @@ class CourseIcalendarUtil:
         start_date = base_date + timedelta(weeks=start_week - 1, days=_get_day_no(course.day))
         start_time = time_table[course.start_time - 1][0]
         end_time = time_table[course.start_time + course.duration - 2][1]
-        return BaseEvent(summary=f'【课程】{course.name}',
+        return BaseEvent(summary=f'{course.name}',
                          location=course.classroom,
-                         description=f"【{course.teacher}】 {course.duration}节 ——《拱拱》",
+                         description=f"【{course.teacher}】 {course.duration}节课程",
                          start_time=datetime.combine(start_date, start_time),
                          end_time=datetime.combine(start_date, end_time),
                          rrule=BaseRepeatRule(freq="WEEKLY", count=count),
