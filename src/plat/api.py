@@ -146,10 +146,10 @@ async def get_calendar(token: str = Header(description="用户凭证")):
 async def get_courses_ics(token: str = Param(description="用户凭证")):
     """获取课表ics"""
     teaching_calendar = (await do_gets(calendar_service, token)).data
+    courses = (await do_gets(course_service, token)).data
     if not teaching_calendar or not isinstance(teaching_calendar, TeachingCalendar):
         return fail(message="获取校历失败")
     base_date = teaching_calendar.start
-    courses = (await do_gets(course_service, token)).data
     if not courses or not isinstance(courses, CourseList):
         return fail(message="获取课表失败")
     events = ics_utils["Course"].convert_courses_to_events(courses.courses, base_date)
