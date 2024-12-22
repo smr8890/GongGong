@@ -179,5 +179,5 @@ class AccountService:
                     return False
             except Exception as e:
                 retry += 1
-                logger.warning(f'账户 {account.student_id} 刷新session失败 [{retry} / {retry}]')
+                logger.warning(f'账户 {account.student_id} 刷新session失败 [{retry} / {max_retry}]')
                 logger.error("账号保活时异常", exc_info=True)

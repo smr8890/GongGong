@@ -22,6 +22,23 @@ class EducationalManageSystem(ABC):
         """教务系统登陆，返回登陆session"""
         pass
 
+    @abstractmethod
+    async def async_login(self, account: AuthenticationAccount, retry_time=3) -> Session:
+        """
+        登陆教务系统
+        Args:
+            account: 账户信息
+            retry_time: 重试次数，如果账号密码错误会直接抛出异常，不会重试
+
+        Returns:
+            登陆后的session
+        Raises:
+            InvalidAccountException: 账号密码错误
+            InvalidCaptchaException: 多次尝试仍然验证码错误
+            UninitializedPasswordException: 未初始化密码
+        """
+        pass
+
 
 class InvalidAccountException(Exception):
     """无效账户异常"""
