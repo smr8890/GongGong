@@ -74,12 +74,12 @@ class AccountService:
                                      session=session.session_id,
                                      status=AccountStatus.NORMAL)
         # 保存更新后的账户信息
-        authed_account = await self.save_new_account(authed_account)
+        authed_account = await self.save_account_with_uni_token(authed_account)
         return authed_account
 
-    async def save_new_account(self, account: Account):
+    async def save_account_with_uni_token(self, account: Account):
         """
-        保存新的用户
+        刷新唯一的token来保存用户
 
         Args:
             account: 用户信息
@@ -137,12 +137,20 @@ class AccountService:
             return None
 
     async def refresh_task(self):
-        logger.info(f"当前一共有 {len(self.account_repository)} 个账户需要刷新")
+        logger.info(f"一共有 {len(self.account_repository)} 个账户需要刷新")
+        valid_account_count = 0
         async for student_id in self.account_repository:
             account: Account = await self.account_repository.async_get_item(student_id)
             if account.is_valid():
-                await self.refresh_single_session(account)
+                result = await self.refresh_single_session(account)
+                if not result:
+                    logger.warning(f"账户 {account.student_id} 刷新session失败")
+                    await self.expire_account(account.student_id)
+                else:
+                    logger.debug(f"账户 {account.student_id} 刷新session成功")
+                    valid_account_count += 1
                 await asyncio.sleep(.5)
+        logger.info(f"已刷新 {valid_account_count}/{len(self.account_repository)} 个账户")
 
     async def refresh_session(self, interval: int):
         """
@@ -168,16 +176,10 @@ class AccountService:
         while retry <= max_retry:
             try:
                 validation = await self.session_validator.async_handler(Session(session_id=account.session))
-                if validation:
-                    # 为验证通过， 认定失效账户
-                    logger.debug(f'账户 {account.student_id} 已验证通过')
-                    return True
-                else:
-                    # 为验证通过， 认定失效账户
-                    logger.debug(f'账户 {account.student_id} 已失效')
-                    await self.expire_account(account.student_id)
-                    return False
+                return validation
             except Exception as e:
                 retry += 1
                 logger.warning(f'账户 {account.student_id} 刷新session失败 [{retry} / {max_retry}]')
                 logger.error("账号保活时异常", exc_info=True)
+
+        return False
