@@ -8,9 +8,7 @@ from xtu_ems.util.icalendar import BaseEvent, BaseRepeatRule, BaseAlarm
 
 class ExamIcalendarUtil:
     """考试日历工具"""
-    DEFAULT_ALARM = [BaseAlarm(trigger=timedelta(days=-7), description="考试提醒，距离考试只有7天了！"),
-                     BaseAlarm(trigger=timedelta(days=-3), description="考试提醒，距离考试只有3天了！"),
-                     BaseAlarm(trigger=timedelta(days=-1), description="考试提醒，距离考试只有1天了！"),
+    DEFAULT_ALARM = [
                      BaseAlarm(trigger=timedelta(minutes=-30), description="考试提醒，距离考试只有30分钟了！")
                      ]
 
