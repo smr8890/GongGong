@@ -20,16 +20,24 @@ FROM base
 
 LABEL authors="leo"
 
+WORKDIR /app
+
+RUN mkdir /logs
+
+# 创建一个非特权用户，避免以 root 身份运行
+RUN useradd -m fastapi_user && \
+    chown -R fastapi_user:fastapi_user /app /logs
+
+#RUN chmod -R u+w /logs
 
 # 复制源码文件
 COPY ./src /app
 
-
-# 创建日志目录
-RUN mkdir /logs
+# 切换到非 root 用户
+USER fastapi_user
 
 # 暴露端口
 EXPOSE 8000
 
 # 入口命令
-ENTRYPOINT ["python", "app.py"]
+ENTRYPOINT ["uvicorn", "app:fastapi_app", "--host", "0.0.0.0", "--port", "8000", "--log-config", "log_config.json"]

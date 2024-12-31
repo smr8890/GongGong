@@ -1,3 +1,4 @@
+import asyncio
 import logging
 
 from plat.repository.d_basic import KVRepository
@@ -40,13 +41,35 @@ class UpdateTask:
             account = await self.user_repository.async_get_item(user_id)
             return account
 
+    async def _try_handler(self, session: Session, max_retry=3):
+        """
+        尝试执行handler
+        Args:
+            session:
+            max_retry:
+
+        Returns:
+
+        """
+        retry = 0
+        while retry <= max_retry:
+            try:
+                result = await self.handler.async_handler(session)
+                return result
+            except Exception as e:
+                retry += 1
+                logger.warning(f"重试第 [{retry} / {retry}] 次")
+                if retry >= max_retry:
+                    raise e
+                await asyncio.sleep(.1)
+
     async def __call__(self, *args, **kwargs):
         # 获取Session，并且判断Session是否存在
         account = await self.get_account()
         if account:
             session = account.session
             try:
-                result = await self.handler.async_handler(Session(session_id=session))
+                result = await self._try_handler(Session(session_id=session))
             except Exception as e:
                 # 认为Session可能过期了
                 logger.info(f" {account.student_id} 的SESSION可能过期了，需要重新登陆")

@@ -56,3 +56,6 @@ class CacheRepository(KVRepository[_KEY, _VAL]):
         self.local_cache = local_cache
         self.validator = validator
         self.on_refresh = on_refresh
+
+    def __len__(self):
+        return len(self.local_cache)

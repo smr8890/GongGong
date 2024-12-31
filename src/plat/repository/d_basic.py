@@ -43,6 +43,11 @@ class KVRepository(Generic[_KEY, _VAL]):
         """异步删除键值"""
         pass
 
+    @abstractmethod
+    def __len__(self):
+        """异步获取键值"""
+        pass
+
 
 class SimpleKVRepository(KVRepository[_KEY, _VAL]):
     """简单键值存储仓库"""
@@ -76,3 +81,6 @@ class SimpleKVRepository(KVRepository[_KEY, _VAL]):
             return next(self._iterator)
         except StopIteration:
             raise StopAsyncIteration
+
+    def __len__(self):
+        return len(self.data)
