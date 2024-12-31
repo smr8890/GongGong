@@ -6,7 +6,7 @@ services:
       - "8000:8000"
     environment:
       - TZ=Asia/Shanghai
-      - ENV=prod
+      # - ENV=prod
     volumes:
       - /etc/localtime:/etc/localtime:ro  # 设置时区
       - /etc/timezone:/etc/timezone:ro # 设置时区
