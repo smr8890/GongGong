@@ -13,7 +13,8 @@ COPY ./requirements*.txt ./
 RUN pip install --upgrade pip -i $PROXY \
     && pip config set global.index-url $PROXY \
     && pip install -r requirements.txt \
-    && rm -f requirements*.txt
+    && rm -f requirements*.txt\
+    && pip cache purge
 
 # 应用构建阶段
 FROM base
