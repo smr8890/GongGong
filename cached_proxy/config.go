@@ -15,22 +15,20 @@ var (
 var (
 	// DefaultCourseAlarms 课程事件的默认提醒
 	DefaultCourseAlarms = []icalendar.Alarm{
-		icalendar.NewIcsAlarm(icalendar.DISPLAY, 28*time.Minute, "距离上课仅剩28分钟"),
+		icalendar.NewIcsAlarm(icalendar.DISPLAY, 30*time.Minute, "距离上课仅剩30分钟"),
 	}
 	// DefaultExamAlarms 考试事件的默认提醒
 	DefaultExamAlarms = []icalendar.Alarm{
-		icalendar.NewIcsAlarm(icalendar.DISPLAY, 1*time.Hour, "距离考试仅剩1小时"),
-		icalendar.NewIcsAlarm(icalendar.DISPLAY, 24*time.Hour, "距离考试仅剩1天"),
-		icalendar.NewIcsAlarm(icalendar.DISPLAY, 7*24*time.Hour, "距离考试仅剩7天"),
+		icalendar.NewIcsAlarm(icalendar.DISPLAY, 30*time.Minute, "距离考试仅剩30分钟"),
 	}
 )
 
 // 日历事件的标题和描述的配置
 const (
 	ExamSummaryPrefix       = "【考试】"
-	ExamDescSuffix          = "【拱拱】"
-	CourseSummaryPrefix     = "【课程】"
-	CourseDescSummarySuffix = "【拱拱】"
+	ExamDescSuffix          = ""
+	CourseSummaryPrefix     = ""
+	CourseDescSummarySuffix = ""
 	ProdID                  = "-//sky31studio//GongGong//CN"
 )
 
