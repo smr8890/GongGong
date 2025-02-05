@@ -26,9 +26,9 @@ var (
 // 日历事件的标题和描述的配置
 const (
 	ExamSummaryPrefix       = "【考试】"
-	ExamDescSuffix          = "【拱拱】"
-	CourseSummaryPrefix     = "【课程】"
-	CourseDescSummarySuffix = "【拱拱】"
+	ExamDescSuffix          = ""
+	CourseSummaryPrefix     = ""
+	CourseDescSummarySuffix = ""
 	ProdID                  = "-//sky31studio//GongGong//CN"
 )
 
