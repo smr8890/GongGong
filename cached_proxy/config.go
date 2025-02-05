@@ -19,7 +19,7 @@ var (
 	}
 	// DefaultExamAlarms 考试事件的默认提醒
 	DefaultExamAlarms = []icalendar.Alarm{
-		icalendar.NewIcsAlarm("DISPLAY", 30*time.Minute, "距离考试仅剩30分钟")
+		icalendar.NewIcsAlarm("DISPLAY", 30*time.Minute, "距离考试仅剩30分钟"),
 	}
 )
 
