@@ -15,11 +15,11 @@ var (
 var (
 	// DefaultCourseAlarms 课程事件的默认提醒
 	DefaultCourseAlarms = []icalendar.Alarm{
-		icalendar.NewIcsAlarm("DISPLAY", 30*time.Minute, "距离上课仅剩30分钟"),
+		icalendar.NewIcsAlarm(icalendar.DISPLAY, 30*time.Minute, "距离上课仅剩30分钟"),
 	}
 	// DefaultExamAlarms 考试事件的默认提醒
 	DefaultExamAlarms = []icalendar.Alarm{
-		icalendar.NewIcsAlarm("DISPLAY", 30*time.Minute, "距离考试仅剩30分钟"),
+		icalendar.NewIcsAlarm(icalendar.DISPLAY, 30*time.Minute, "距离考试仅剩30分钟"),
 	}
 )
 
