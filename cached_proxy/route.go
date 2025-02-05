@@ -248,9 +248,9 @@ func ExamsConvertCalendar(exams *feign.ExamList, _ *feign.TeachingCalendar) ical
 		}
 		location := &icalendar.IcsLocation{}
 		location.SetName(exam.Location)
-		event.SetSummary(fmt.Sprintf("%s %s", ExamSummaryPrefix, exam.Name))
+		event.SetSummary(fmt.Sprintf("%s%s", ExamSummaryPrefix, exam.Name))
 		event.SetLocation(location)
-		event.SetDescription(fmt.Sprintf("【%s】%s %s", exam.Name, exam.Location, ExamDescSuffix))
+		event.SetDescription(fmt.Sprintf("【%s】%s%s", exam.Name, exam.Location, ExamDescSuffix))
 		event.SetStart(startTime)
 		event.SetEnd(endTime)
 		for _, a := range DefaultExamAlarms {
@@ -315,7 +315,7 @@ func CoursesConvertCalendar(list *feign.CourseList, calendar *feign.TeachingCale
 }
 
 func convertCourseToEvent(course feign.Course, calendar *feign.TeachingCalendar, start int, end int, timetable feign.TimeTable) *icalendar.IcsEvent {
-	summary := fmt.Sprintf("%s %s", CourseSummaryPrefix, course.Name)
+	summary := fmt.Sprintf("%s%s", CourseSummaryPrefix, course.Name)
 	desc := fmt.Sprintf("【%s】%d节课%s", course.Teacher, course.Duration, CourseDescSummarySuffix)
 	location := &icalendar.IcsLocation{}
 	location.SetName(course.Classroom)
