@@ -18,8 +18,12 @@ WORKDIR /app
 # 将编译好的静态文件复制到镜像中
 COPY --from=builder /app/cached_proxy /app/cached_proxy
 
-# 暴露应用的端口（根据你的应用而定，例如 8080）
+COPY --from=builder /usr/share/zoneinfo /usr/share/zoneinfo
+ENV TZ=Asia/Shanghai
+
 EXPOSE 8000
+
+VOLUME /app/_data
 
 # 设置可执行文件作为启动命令
 ENTRYPOINT ["./cached_proxy"]

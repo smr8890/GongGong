@@ -39,11 +39,11 @@ sudo docker-compose up -d
 ```
 
 默认端口映射在***8000***
-端口上。接口文档访问[GongGong API-APIFOX](https://apifox.com/apidoc/shared-ef757708-c6aa-4397-9330-4eb4dc623384)
+端口上。接口文档访问[GongGong API-APIFOX](https://apifox.com/apidoc/shared-36437022-d429-4f8b-93a6-937ec22e962e)
 
 > [!Note]
 >
-> 我们也提供了OPENAPI的json文档在[Gong.openapi.yaml](./docs/Gong.openapi.yaml)
+> 我们也提供了OPENAPI的json文档在[Gong.openapi.json](./docs/Gong.openapi.json)
 > ，你可以将其导入你的Swagger或者其他支持OPENAPI协议的软件中进行预览和测试
 
 我们在***8080***端口上还添加了使用反馈的接口，在`POST http://<host>:<port>/feedback`可以使用。此功能与主服务独立，如果不需要可以在

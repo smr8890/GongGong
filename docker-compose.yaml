@@ -1,7 +1,7 @@
 services:
   #  主服务
   api:
-    build: .
+    build: ./ems-sdk
     environment:
       - TZ=Asia/Shanghai
       - ENV=prod
@@ -22,20 +22,8 @@ services:
       - /etc/localtime:/etc/localtime:ro  # 设置时区
       - /etc/timezone:/etc/timezone:ro # 设置时区
   #  反馈服务
-  # feedback:
-  #   build: ./feedback
-  #   ports:
-  #     - "8080:8080"
-  #   volumes:
-  #     - /etc/localtime:/etc/localtime:ro  # 设置时区
-  #     - /etc/timezone:/etc/timezone:ro # 设置时区
-  #     - ./feedback/dist:/app/dist:ro
-  #     - feedback_files:/app/feedback_files
 
 volumes:
   api-logs:
-
-  # feedback_files:
-
   proxy_files:
 
